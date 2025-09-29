@@ -15,7 +15,7 @@ interface Client {
   status: string
   created_at: string
 }
-
+ 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
