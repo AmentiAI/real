@@ -1,9 +1,1 @@
-{
-  "/page": "app/page.js",
-  "/services/website-design/page": "app/services/website-design/page.js",
-  "/pricing/page": "app/pricing/page.js",
-  "/services/[slug]/page": "app/services/[slug]/page.js",
-  "/services/white-label-website/page": "app/services/white-label-website/page.js",
-  "/services/complete-growth-packages/page": "app/services/complete-growth-packages/page.js",
-  "/services/branding-identity/page": "app/services/branding-identity/page.js"
-}
+{}
