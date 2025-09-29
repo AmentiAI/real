@@ -58,3 +58,4 @@ createAdminUser()
     console.error('Admin user setup failed:', error);
     process.exit(1);
   });
+

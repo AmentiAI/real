@@ -150,3 +150,4 @@ export async function initDatabase() {
     client.release();
   }
 }
+
