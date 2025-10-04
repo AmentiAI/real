@@ -26,7 +26,7 @@ interface Settings {
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>({
     general: {
-      siteName: branding?.company_name || 'Amenti AI',
+      siteName: 'Amenti AI',
       siteDescription: 'Professional internet marketing and SEO services',
       siteUrl: 'https://amentiai.com',
       adminEmail: 'admin@amentiai.com'
@@ -153,10 +153,22 @@ export default function SettingsPage() {
         <button
           onClick={saveSettings}
           disabled={saving}
-          className="btn-primary inline-flex items-center"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
         >
-          <Save className="mr-2" size={16} />
-          {saving ? 'Saving...' : 'Save Settings'}
+          {saving ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="mr-2" size={16} />
+              Save Settings
+            </>
+          )}
         </button>
       </div>
 
@@ -175,14 +187,14 @@ export default function SettingsPage() {
 
       {/* General Settings */}
       <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center mb-4">
+        <div className="px-4 py-4 sm:p-5">
+          <div className="flex items-center mb-3">
             <Globe className="w-5 h-5 text-gray-400 mr-2" />
             <h3 className="text-lg leading-6 font-medium text-gray-900">General Settings</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="label">Site Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
               <input
                 type="text"
                 value={settings.general.siteName}
@@ -191,7 +203,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="label">Admin Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Admin Email</label>
               <input
                 type="email"
                 value={settings.general.adminEmail}
@@ -200,16 +212,16 @@ export default function SettingsPage() {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="label">Site Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Site Description</label>
               <textarea
                 value={settings.general.siteDescription}
                 onChange={(e) => handleGeneralChange('siteDescription', e.target.value)}
                 className="textarea"
-                rows={3}
+                rows={2}
               />
             </div>
             <div className="md:col-span-2">
-              <label className="label">Site URL</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Site URL</label>
               <input
                 type="url"
                 value={settings.general.siteUrl}
@@ -223,8 +235,8 @@ export default function SettingsPage() {
 
       {/* Notification Settings */}
       <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center mb-4">
+        <div className="px-4 py-4 sm:p-5">
+          <div className="flex items-center mb-3">
             <Bell className="w-5 h-5 text-gray-400 mr-2" />
             <h3 className="text-lg leading-6 font-medium text-gray-900">Notification Settings</h3>
           </div>
@@ -283,8 +295,8 @@ export default function SettingsPage() {
 
       {/* Security Settings */}
       <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center mb-4">
+        <div className="px-4 py-4 sm:p-5">
+          <div className="flex items-center mb-3">
             <Shield className="w-5 h-5 text-gray-400 mr-2" />
             <h3 className="text-lg leading-6 font-medium text-gray-900">Security Settings</h3>
           </div>

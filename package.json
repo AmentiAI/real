@@ -92,7 +92,7 @@
     "@babel/preset-env": "^7.28.3",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.0"
+    "eslint": "^9",
+    "eslint-config-next": "^15.0.0"
   }
 }

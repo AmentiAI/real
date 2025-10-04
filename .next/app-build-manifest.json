@@ -1,9 +1,14 @@
 {
   "pages": {
-    "/page": [
+    "/admin/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/admin/page.js"
+    ],
+    "/admin/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/layout.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,65 +16,65 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/pricing/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/pricing/page.js"
-    ],
-    "/about/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/about/page.js"
-    ],
     "/[...slug]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/[...slug]/page.js"
     ],
-    "/clients/page": [
+    "/admin/clients/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/clients/page.js"
+      "static/chunks/app/admin/clients/page.js"
     ],
-    "/clients/layout": [
+    "/admin/clients/[id]/edit/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/clients/layout.js"
+      "static/chunks/app/admin/clients/[id]/edit/page.js"
     ],
-    "/clients/login/page": [
+    "/admin/packages/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/clients/login/page.js"
+      "static/chunks/app/admin/packages/page.js"
     ],
-    "/contact/page": [
+    "/admin/pages/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/contact/page.js"
+      "static/chunks/app/admin/pages/page.js"
     ],
-    "/blog/page": [
+    "/admin/seo/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/blog/page.js"
+      "static/chunks/app/admin/seo/page.js"
     ],
-    "/services/[slug]/page": [
+    "/admin/paypal-config/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/services/[slug]/page.js"
+      "static/chunks/app/admin/paypal-config/page.js"
     ],
-    "/checkout/page": [
+    "/admin/branding/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/checkout/page.js"
+      "static/chunks/app/admin/branding/page.js"
     ],
-    "/locations/providence/page": [
+    "/admin/inquiries/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/locations/providence/page.js"
+      "static/chunks/app/admin/inquiries/page.js"
     ],
-    "/industries/roofers/page": [
+    "/admin/settings/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/industries/roofers/page.js"
+      "static/chunks/app/admin/settings/page.js"
+    ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
+    "/admin/messages/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/messages/page.js"
     ]
   }
 }

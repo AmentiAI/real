@@ -443,18 +443,18 @@ export default function ClientsPage() {
         <div className="flex space-x-3">
           <button
             onClick={handleExport}
-            className="btn-secondary inline-flex items-center"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
           >
-            <Download className="mr-2" size={20} />
+            <Download className="mr-2" size={18} />
             Export
           </button>
         <button
           onClick={() => {
             window.location.href = '/admin/clients/add'
           }}
-          className="btn-primary inline-flex items-center"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors shadow-sm"
         >
-          <Plus className="mr-2" size={20} />
+          <Plus className="mr-2" size={18} />
           Add Client
         </button>
         </div>
@@ -568,19 +568,19 @@ export default function ClientsPage() {
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => handleBulkAction('updateStatus', { status: 'active' })}
-                className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded hover:bg-green-200"
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors"
               >
                 Mark Active
               </button>
               <button
                 onClick={() => handleBulkAction('updateStatus', { status: 'inactive' })}
-                className="px-3 py-1 text-sm bg-red-100 text-red-800 rounded hover:bg-red-200"
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 transition-colors"
               >
                 Mark Inactive
               </button>
               <button
                 onClick={() => handleBulkAction('delete')}
-                className="px-3 py-1 text-sm bg-red-100 text-red-800 rounded hover:bg-red-200"
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors"
               >
                 Delete Selected
               </button>
@@ -595,17 +595,16 @@ export default function ClientsPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
                   <button
                     onClick={handleSelectAll}
-                    className="flex items-center space-x-2"
+                    className="flex items-center"
                   >
                     {selectedClients.length === clients.length ? (
                       <CheckSquare size={16} className="text-primary-600" />
                     ) : (
                       <Square size={16} className="text-gray-400" />
                     )}
-                    <span>Client</span>
                   </button>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -623,9 +622,6 @@ export default function ClientsPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Billing Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
                 <th className="relative px-6 py-3">
                   <span className="sr-only">Actions</span>
                 </th>
@@ -634,36 +630,32 @@ export default function ClientsPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {clients.map((client) => (
                 <tr key={client.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <button
-                        onClick={() => handleSelectClient(client.id)}
-                        className="mr-3"
-                      >
-                        {selectedClients.includes(client.id) ? (
-                          <CheckSquare size={16} className="text-primary-600" />
-                        ) : (
-                          <Square size={16} className="text-gray-400" />
-                        )}
-                      </button>
-                    <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {client.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {client.location}
-                        </div>
-                      </div>
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap w-12">
+                    <button
+                      onClick={() => handleSelectClient(client.id)}
+                    >
+                      {selectedClients.includes(client.id) ? (
+                        <CheckSquare size={16} className="text-primary-600" />
+                      ) : (
+                        <Square size={16} className="text-gray-400" />
+                      )}
+                    </button>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{client.company}</div>
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-medium text-gray-900">{client.company}</div>
+            
                     {client.website && (
-                      <div className="text-sm text-gray-500">
-                        <a href={client.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 flex items-center">
+                      <div className="text-sm text-gray-500 mt-1">
+                        <a href={client.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 inline-flex items-center">
                           <Globe size={12} className="mr-1" />
-                          {client.website}
+                          {client.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                         </a>
+                      </div>
+                    )}
+                    {client.location && (
+                      <div className="text-sm text-gray-500 flex items-center mt-1">
+                        <MapPin size={12} className="mr-1" />
+                        {client.location}
                       </div>
                     )}
                   </td>
@@ -718,9 +710,6 @@ export default function ClientsPage() {
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(client.created_at).toLocaleDateString()}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
                       <button 
@@ -728,7 +717,7 @@ export default function ClientsPage() {
                           setSelectedClient(client)
                           setShowViewModal(true)
                         }}
-                        className="text-primary-600 hover:text-primary-900"
+                        className="p-2 text-primary-600 hover:text-primary-900 hover:bg-primary-50 rounded-lg transition-colors"
                         title="View Details"
                       >
                         <Eye size={16} />
@@ -737,7 +726,7 @@ export default function ClientsPage() {
                         onClick={() => {
                           window.location.href = `/admin/clients/${client.id}/edit`
                         }}
-                        className="text-gray-600 hover:text-gray-900"
+                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                         title="Edit Client"
                       >
                         <Edit size={16} />
@@ -762,7 +751,7 @@ export default function ClientsPage() {
                             }
                           }
                         }}
-                        className="text-red-600 hover:text-red-900"
+                        className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Client"
                       >
                         <Trash2 size={16} />

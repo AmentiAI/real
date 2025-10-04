@@ -19,6 +19,7 @@ interface PricingTier {
 
 interface Service {
   id: number
+  package_id?: number
   name: string
   description: string
   icon: string
@@ -112,16 +113,19 @@ export default function PackagesPage() {
       if (data.success && data.data && data.data.length > 0) {
         // Group packages by service type
         const groupedServices = data.data.reduce((acc: Record<string, Service>, pkg: any) => {
-          const serviceName = pkg.name.includes('SEO') ? 'SEO Services' : 
-                             pkg.name.includes('Website') ? 'Website Design' : 
-                             'Complete Growth Packages'
+          // Use the actual service_name from the database, or infer it
+          const serviceName = pkg.service_name || 
+                             (pkg.name?.includes('SEO') ? 'SEO Services' : 
+                             pkg.name?.includes('Website') ? 'Website Design' : 
+                             'Complete Growth Packages')
           
           if (!acc[serviceName]) {
-            const config = serviceConfigs[serviceName as keyof typeof serviceConfigs]
+            const config = serviceConfigs[serviceName as keyof typeof serviceConfigs] || serviceConfigs['SEO Services']
             acc[serviceName] = {
-              id: Object.keys(acc).length + 1,
+              id: pkg.id,  // Use the actual package ID from database
+              package_id: pkg.id,  // Store the package ID for adding tiers
               name: serviceName,
-              description: pkg.description || `Professional ${serviceName.toLowerCase()} that deliver measurable results`,
+              description: pkg.service_description || `Professional ${serviceName.toLowerCase()} that deliver measurable results`,
               icon: config.icon,
               color: config.color,
               gradient: config.gradient,
@@ -133,19 +137,21 @@ export default function PackagesPage() {
             }
           }
           
-          // Add package as a pricing tier
-          acc[serviceName].tiers.push({
-            id: pkg.id,
-            name: pkg.name,
-            description: pkg.description,
-            price: pkg.price,
-            currency: pkg.currency,
-            billing_period: pkg.billing_period,
-            features: pkg.features || [],
-            is_popular: pkg.is_popular,
-            is_active: pkg.is_active,
-            display_order: pkg.display_order
-          })
+          // Only add tiers that exist (package_id will be null if no tiers exist yet)
+          if (pkg.package_id) {
+            acc[serviceName].tiers.push({
+              id: pkg.package_id,  // This is the tier ID from package_tiers
+              name: pkg.name,
+              description: pkg.description,
+              price: pkg.price,
+              currency: pkg.currency,
+              billing_period: pkg.billing_period,
+              features: pkg.features || [],
+              is_popular: pkg.is_popular,
+              is_active: pkg.is_active,
+              display_order: pkg.display_order
+            })
+          }
           
           return acc
         }, {})
@@ -269,8 +275,8 @@ export default function PackagesPage() {
     if (!selectedService) return
 
     try {
-      const newTier: PricingTier = {
-        id: editingTier?.id || Date.now(),
+      const tierData = {
+        package_id: selectedService.package_id,
         name: tierFormData.name,
         description: tierFormData.description,
         price: parseFloat(tierFormData.price),
@@ -282,28 +288,47 @@ export default function PackagesPage() {
         display_order: tierFormData.display_order
       }
 
-      setServices(prev => prev.map(service => {
-        if (service.id === selectedService.id) {
-          if (editingTier) {
-            return {
-              ...service,
-              tiers: service.tiers.map(tier => tier.id === editingTier.id ? newTier : tier)
-            }
-          } else {
-            return {
-              ...service,
-              tiers: [...service.tiers, newTier].sort((a, b) => a.display_order - b.display_order)
-            }
-          }
+      if (editingTier) {
+        // Update existing tier
+        const response = await fetch('/api/packages', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...tierData,
+            id: editingTier.id
+          })
+        })
+
+        const result = await response.json()
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to update tier')
         }
-        return service
-      }))
+      } else {
+        // Create new tier
+        const response = await fetch('/api/packages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(tierData)
+        })
+
+        const result = await response.json()
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to add tier')
+        }
+      }
+
+      // Refresh services from database
+      await fetchServices()
 
       setShowTierModal(false)
       setEditingTier(null)
       setSelectedService(null)
+      setError('')
     } catch (err) {
-      setError('Failed to save tier')
+      console.error('Error saving tier:', err)
+      setError(err instanceof Error ? err.message : 'Failed to save tier')
     }
   }
 
@@ -311,17 +336,24 @@ export default function PackagesPage() {
     if (!confirm('Are you sure you want to delete this pricing tier?')) return
 
     try {
-      setServices(prev => prev.map(service => {
-        if (service.id === serviceId) {
-          return {
-            ...service,
-            tiers: service.tiers.filter(tier => tier.id !== tierId)
-          }
-        }
-        return service
-      }))
+      setError('')
+      const response = await fetch(`/api/packages?id=${tierId}`, {
+        method: 'DELETE'
+      })
+
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete tier')
+      }
+
+      // Refresh services from database
+      await fetchServices()
     } catch (err) {
-      setError('Failed to delete tier')
+      console.error('Error deleting tier:', err)
+      setError(err instanceof Error ? err.message : 'Failed to delete tier')
+      // Show error for 5 seconds then clear
+      setTimeout(() => setError(''), 5000)
     }
   }
 

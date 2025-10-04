@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST="{\"components\\\\RichTextEditorWrapper.tsx -> @/components/RichTextEditor\":{\"id\":\"components\\\\RichTextEditorWrapper.tsx -> @/components/RichTextEditor\",\"files\":[\"static/chunks/_app-pages-browser_components_RichTextEditor_tsx.js\"]}}"

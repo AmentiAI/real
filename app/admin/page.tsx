@@ -1,27 +1,63 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
+interface DashboardStats {
+  totalClients: number
+  activeClients: number
+  totalProjects: number
+  totalInquiries: number
+  yearlyRevenue: number
+}
+
 export default function AdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalClients: 0,
+    activeClients: 0,
+    totalProjects: 0,
+    totalInquiries: 0,
+    yearlyRevenue: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/admin/dashboard-stats')
+      const data = await response.json()
+      if (data.stats) {
+        setStats(data.stats)
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Welcome to the admin dashboard! No authentication required.
+          Welcome to the admin dashboard! Overview of your business metrics.
         </p>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">System Status</h2>
-        <div className="space-y-2">
-          <p><strong>Authentication:</strong> Disabled</p>
-          <p><strong>Database:</strong> Connected</p>
-          <p><strong>Admin Access:</strong> Open</p>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
               <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,12 +66,19 @@ export default function AdminDashboard() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Clients</p>
-              <p className="text-2xl font-semibold text-gray-900">0</p>
+              {loading ? (
+                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+              ) : (
+                <p className="text-2xl font-semibold text-gray-900">{stats.totalClients}</p>
+              )}
+              {!loading && stats.activeClients > 0 && (
+                <p className="text-xs text-gray-500">{stats.activeClients} active</p>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
               <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,13 +86,20 @@ export default function AdminDashboard() {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active Projects</p>
-              <p className="text-2xl font-semibold text-gray-900">0</p>
+              <p className="text-sm font-medium text-gray-600">Active Services</p>
+              {loading ? (
+                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+              ) : (
+                <p className="text-2xl font-semibold text-gray-900">{stats.totalProjects}</p>
+              )}
+              {!loading && stats.totalProjects > 0 && (
+                <p className="text-xs text-gray-500">in progress</p>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
           <div className="flex items-center">
             <div className="p-2 bg-purple-100 rounded-lg">
               <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,12 +108,16 @@ export default function AdminDashboard() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">New Inquiries</p>
-              <p className="text-2xl font-semibold text-gray-900">0</p>
+              {loading ? (
+                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+              ) : (
+                <p className="text-2xl font-semibold text-gray-900">{stats.totalInquiries}</p>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
           <div className="flex items-center">
             <div className="p-2 bg-orange-100 rounded-lg">
               <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,8 +125,12 @@ export default function AdminDashboard() {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Revenue</p>
-              <p className="text-2xl font-semibold text-gray-900">$0</p>
+              <p className="text-sm font-medium text-gray-600">Yearly Revenue</p>
+              {loading ? (
+                <div className="h-8 w-24 bg-gray-200 animate-pulse rounded"></div>
+              ) : (
+                <p className="text-2xl font-semibold text-gray-900">{formatCurrency(stats.yearlyRevenue)}</p>
+              )}
             </div>
           </div>
         </div>

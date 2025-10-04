@@ -59,7 +59,7 @@ export default function PricingPreview() {
   const formatPrice = (price: string, currency: string, period: string) => {
     const formattedPrice = new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency,
+      currency: currency || 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(parseFloat(price))
