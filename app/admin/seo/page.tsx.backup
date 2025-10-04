@@ -1,0 +1,1031 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Search, BarChart3, Target, Globe, AlertTriangle, CheckCircle, Eye, Edit, ExternalLink } from 'lucide-react'
+
+interface SEOPage {
+  id: string
+  title: string
+  slug: string
+  meta_title?: string
+  meta_description?: string
+  focus_keyword?: string
+  og_title?: string
+  og_description?: string
+  og_image?: string
+  canonical_url?: string
+  robots_index?: boolean
+  robots_follow?: boolean
+  schema_type?: string
+  seo_score?: number
+  published: boolean
+  // New SEO metrics
+  word_count?: number
+  heading_structure?: {
+    h1_count: number
+    h2_count: number
+    h3_count: number
+    h4_count: number
+    has_h1: boolean
+  }
+  internal_links?: number
+  external_links?: number
+  image_count?: number
+  images_with_alt?: number
+  readability_score?: number
+  keyword_density?: number
+  content_freshness?: string
+  page_speed_score?: number
+}
+
+interface SEOContent {
+  id: string
+  section: string
+  title: string
+  focus_keyword?: string
+  meta_title?: string
+  meta_description?: string
+  alt_text?: string
+  active: boolean
+}
+
+export default function SEODashboard() {
+  const [seoPages, setSeoPages] = useState<SEOPage[]>([])
+  const [seoContent, setSeoContent] = useState<SEOContent[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // ALL your pages SEO data
+  const sampleSEOPages: SEOPage[] = [
+    // Main Pages
+    { 
+      id: '1', 
+      title: 'Home', 
+      slug: '', 
+      meta_title: 'Amenti AI - Digital Marketing & SEO Services | Rhode Island', 
+      meta_description: 'Rhode Island\'s premier digital marketing agency. Proven SEO, web design, and marketing strategies that help businesses grow.', 
+      focus_keyword: 'digital marketing Rhode Island', 
+      canonical_url: 'https://amentiai.com', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Organization', 
+      seo_score: 92, 
+      published: true,
+      word_count: 2847,
+      heading_structure: { h1_count: 1, h2_count: 5, h3_count: 12, h4_count: 3, has_h1: true },
+      internal_links: 23,
+      external_links: 3,
+      image_count: 15,
+      images_with_alt: 15,
+      readability_score: 78,
+      keyword_density: 2.3,
+      content_freshness: '2024-01-15',
+      page_speed_score: 89
+    },
+    { 
+      id: '2', 
+      title: 'About Us', 
+      slug: 'about', 
+      meta_title: 'About Amenti AI - Rhode Island Digital Marketing Experts', 
+      meta_description: 'Learn about Amenti AI, Rhode Island\'s premier digital marketing agency.', 
+      focus_keyword: 'Rhode Island digital marketing agency', 
+      canonical_url: 'https://amentiai.com/about', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Organization', 
+      seo_score: 85, 
+      published: true,
+      word_count: 1856,
+      heading_structure: { h1_count: 1, h2_count: 4, h3_count: 8, h4_count: 2, has_h1: true },
+      internal_links: 12,
+      external_links: 2,
+      image_count: 8,
+      images_with_alt: 8,
+      readability_score: 82,
+      keyword_density: 1.8,
+      content_freshness: '2024-01-10',
+      page_speed_score: 91
+    },
+    { 
+      id: '3', 
+      title: 'Pricing', 
+      slug: 'pricing', 
+      meta_title: 'Pricing - Amenti AI Digital Marketing Services', 
+      meta_description: 'Transparent pricing for professional digital marketing services.', 
+      focus_keyword: 'digital marketing pricing', 
+      canonical_url: 'https://amentiai.com/pricing', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Service', 
+      seo_score: 78, 
+      published: true,
+      word_count: 1234,
+      heading_structure: { h1_count: 1, h2_count: 3, h3_count: 6, h4_count: 1, has_h1: true },
+      internal_links: 8,
+      external_links: 1,
+      image_count: 5,
+      images_with_alt: 5,
+      readability_score: 85,
+      keyword_density: 2.1,
+      content_freshness: '2024-01-08',
+      page_speed_score: 93
+    },
+    { 
+      id: '4', 
+      title: 'Blog', 
+      slug: 'blog', 
+      meta_title: 'Blog - Digital Marketing Insights | Amenti AI', 
+      meta_description: 'Digital marketing insights and strategies.', 
+      focus_keyword: 'digital marketing blog', 
+      canonical_url: 'https://amentiai.com/blog', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Blog', 
+      seo_score: 92, 
+      published: true,
+      word_count: 3421,
+      heading_structure: { h1_count: 1, h2_count: 6, h3_count: 15, h4_count: 4, has_h1: true },
+      internal_links: 18,
+      external_links: 5,
+      image_count: 12,
+      images_with_alt: 12,
+      readability_score: 76,
+      keyword_density: 1.9,
+      content_freshness: '2024-01-20',
+      page_speed_score: 87
+    },
+    { 
+      id: '5', 
+      title: 'Case Studies', 
+      slug: 'case-studies', 
+      meta_title: 'Case Studies - Real Results from Amenti AI Clients', 
+      meta_description: 'Real results from real clients.', 
+      focus_keyword: 'digital marketing case studies', 
+      canonical_url: 'https://amentiai.com/case-studies', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'WebPage', 
+      seo_score: 88, 
+      published: true,
+      word_count: 2156,
+      heading_structure: { h1_count: 1, h2_count: 4, h3_count: 9, h4_count: 2, has_h1: true },
+      internal_links: 15,
+      external_links: 4,
+      image_count: 10,
+      images_with_alt: 10,
+      readability_score: 81,
+      keyword_density: 1.7,
+      content_freshness: '2024-01-12',
+      page_speed_score: 90
+    },
+    { 
+      id: '6', 
+      title: 'Contact Us', 
+      slug: 'contact', 
+      meta_title: 'Contact Us - Free Digital Marketing Consultation', 
+      meta_description: 'Get in touch with Amenti AI for your digital marketing needs.', 
+      focus_keyword: 'contact digital marketing agency', 
+      canonical_url: 'https://amentiai.com/contact', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'ContactPage', 
+      seo_score: 88, 
+      published: true,
+      word_count: 967,
+      heading_structure: { h1_count: 1, h2_count: 2, h3_count: 4, h4_count: 1, has_h1: true },
+      internal_links: 6,
+      external_links: 1,
+      image_count: 3,
+      images_with_alt: 3,
+      readability_score: 88,
+      keyword_density: 2.4,
+      content_freshness: '2024-01-05',
+      page_speed_score: 95
+    },
+    { 
+      id: '7', 
+      title: 'Checkout', 
+      slug: 'checkout', 
+      meta_title: 'Checkout - Secure Payment | Amenti AI', 
+      meta_description: 'Secure checkout for Amenti AI digital marketing services.', 
+      focus_keyword: 'digital marketing checkout', 
+      canonical_url: 'https://amentiai.com/checkout', 
+      robots_index: false, 
+      robots_follow: true, 
+      schema_type: 'WebPage', 
+      seo_score: 65, 
+      published: false,
+      word_count: 456,
+      heading_structure: { h1_count: 1, h2_count: 2, h3_count: 3, h4_count: 0, has_h1: true },
+      internal_links: 4,
+      external_links: 2,
+      image_count: 2,
+      images_with_alt: 2,
+      readability_score: 92,
+      keyword_density: 1.2,
+      content_freshness: '2024-01-01',
+      page_speed_score: 96
+    },
+    
+    // Industries Pages
+    { 
+      id: '8', 
+      title: 'Industries', 
+      slug: 'industries', 
+      meta_title: 'Industry-Specific Digital Marketing Services | Amenti AI', 
+      meta_description: 'Specialized digital marketing services for different industries.', 
+      focus_keyword: 'industry digital marketing', 
+      canonical_url: 'https://amentiai.com/industries', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'WebPage', 
+      seo_score: 82, 
+      published: true,
+      word_count: 1678,
+      heading_structure: { h1_count: 1, h2_count: 3, h3_count: 7, h4_count: 2, has_h1: true },
+      internal_links: 11,
+      external_links: 3,
+      image_count: 7,
+      images_with_alt: 7,
+      readability_score: 79,
+      keyword_density: 1.9,
+      content_freshness: '2024-01-07',
+      page_speed_score: 88
+    },
+    { 
+      id: '9', 
+      title: 'Digital Marketing for Roofers', 
+      slug: 'industries/roofers', 
+      meta_title: 'Digital Marketing for Roofers | Rhode Island Roofing SEO', 
+      meta_description: 'Specialized digital marketing for roofing contractors.', 
+      focus_keyword: 'roofer digital marketing', 
+      canonical_url: 'https://amentiai.com/industries/roofers', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Service', 
+      seo_score: 86, 
+      published: true,
+      word_count: 1456,
+      heading_structure: { h1_count: 1, h2_count: 3, h3_count: 6, h4_count: 1, has_h1: true },
+      internal_links: 9,
+      external_links: 2,
+      image_count: 6,
+      images_with_alt: 6,
+      readability_score: 83,
+      keyword_density: 2.0,
+      content_freshness: '2024-01-06',
+      page_speed_score: 89
+    },
+    { 
+      id: '10', 
+      title: 'Digital Marketing for Lawyers', 
+      slug: 'industries/lawyers', 
+      meta_title: 'Digital Marketing for Lawyers | Law Firm SEO Services', 
+      meta_description: 'Professional digital marketing for law firms.', 
+      focus_keyword: 'lawyer digital marketing', 
+      canonical_url: 'https://amentiai.com/industries/lawyers', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Service', 
+      seo_score: 84, 
+      published: true,
+      word_count: 1324,
+      heading_structure: { h1_count: 1, h2_count: 3, h3_count: 5, h4_count: 1, has_h1: true },
+      internal_links: 8,
+      external_links: 2,
+      image_count: 5,
+      images_with_alt: 5,
+      readability_score: 85,
+      keyword_density: 1.9,
+      content_freshness: '2024-01-04',
+      page_speed_score: 87
+    },
+    { 
+      id: '11', 
+      title: 'Digital Marketing for Contractors', 
+      slug: 'industries/contractors', 
+      meta_title: 'Digital Marketing for Contractors | Construction SEO', 
+      meta_description: 'Construction contractor digital marketing services.', 
+      focus_keyword: 'contractor digital marketing', 
+      canonical_url: 'https://amentiai.com/industries/contractors', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Service', 
+      seo_score: 83, 
+      published: true,
+      word_count: 1289,
+      heading_structure: { h1_count: 1, h2_count: 3, h3_count: 5, h4_count: 1, has_h1: true },
+      internal_links: 7,
+      external_links: 2,
+      image_count: 4,
+      images_with_alt: 4,
+      readability_score: 84,
+      keyword_density: 1.8,
+      content_freshness: '2024-01-03',
+      page_speed_score: 86
+    },
+    
+    // Location Pages
+    { 
+      id: '12', 
+      title: 'Digital Marketing in Providence', 
+      slug: 'locations/providence', 
+      meta_title: 'Digital Marketing in Providence RI | Local SEO Services', 
+      meta_description: 'Local digital marketing services for Providence, RI businesses.', 
+      focus_keyword: 'Providence digital marketing', 
+      canonical_url: 'https://amentiai.com/locations/providence', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'LocalBusiness', 
+      seo_score: 87, 
+      published: true,
+      word_count: 1567,
+      heading_structure: { h1_count: 1, h2_count: 4, h3_count: 7, h4_count: 2, has_h1: true },
+      internal_links: 12,
+      external_links: 3,
+      image_count: 8,
+      images_with_alt: 8,
+      readability_score: 80,
+      keyword_density: 2.1,
+      content_freshness: '2024-01-09',
+      page_speed_score: 88
+    },
+    { 
+      id: '13', 
+      title: 'Digital Marketing in Warwick', 
+      slug: 'locations/warwick', 
+      meta_title: 'Digital Marketing in Warwick RI | Local SEO Services', 
+      meta_description: 'Local digital marketing services for Warwick, RI businesses.', 
+      focus_keyword: 'Warwick digital marketing', 
+      canonical_url: 'https://amentiai.com/locations/warwick', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'LocalBusiness', 
+      seo_score: 85, 
+      published: true,
+      word_count: 1432,
+      heading_structure: { h1_count: 1, h2_count: 4, h3_count: 6, h4_count: 2, has_h1: true },
+      internal_links: 11,
+      external_links: 3,
+      image_count: 7,
+      images_with_alt: 7,
+      readability_score: 82,
+      keyword_density: 2.0,
+      content_freshness: '2024-01-08',
+      page_speed_score: 87
+    },
+    { 
+      id: '14', 
+      title: 'Digital Marketing in Cranston', 
+      slug: 'locations/cranston', 
+      meta_title: 'Digital Marketing in Cranston RI | Local SEO Services', 
+      meta_description: 'Local digital marketing services for Cranston, RI businesses.', 
+      focus_keyword: 'Cranston digital marketing', 
+      canonical_url: 'https://amentiai.com/locations/cranston', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'LocalBusiness', 
+      seo_score: 84, 
+      published: true,
+      word_count: 1398,
+      heading_structure: { h1_count: 1, h2_count: 4, h3_count: 6, h4_count: 2, has_h1: true },
+      internal_links: 10,
+      external_links: 3,
+      image_count: 6,
+      images_with_alt: 6,
+      readability_score: 81,
+      keyword_density: 1.9,
+      content_freshness: '2024-01-07',
+      page_speed_score: 86
+    },
+    { 
+      id: '15', 
+      title: 'Digital Marketing in Newport', 
+      slug: 'locations/newport', 
+      meta_title: 'Digital Marketing in Newport RI | Local SEO Services', 
+      meta_description: 'Local digital marketing services for Newport, RI businesses.', 
+      focus_keyword: 'Newport digital marketing', 
+      canonical_url: 'https://amentiai.com/locations/newport', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'LocalBusiness', 
+      seo_score: 86, 
+      published: true,
+      word_count: 1512,
+      heading_structure: { h1_count: 1, h2_count: 4, h3_count: 7, h4_count: 2, has_h1: true },
+      internal_links: 11,
+      external_links: 3,
+      image_count: 7,
+      images_with_alt: 7,
+      readability_score: 83,
+      keyword_density: 2.0,
+      content_freshness: '2024-01-06',
+      page_speed_score: 89
+    },
+    
+    // Service Pages
+    { 
+      id: '16', 
+      title: 'Website Design & Development', 
+      slug: 'services/website-design-development', 
+      meta_title: 'Website Design & Development Services | Custom Websites', 
+      meta_description: 'Professional website design and development services.', 
+      focus_keyword: 'website design development', 
+      canonical_url: 'https://amentiai.com/services/website-design-development', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Service', 
+      seo_score: 89, 
+      published: true,
+      word_count: 2134,
+      heading_structure: { h1_count: 1, h2_count: 5, h3_count: 10, h4_count: 3, has_h1: true },
+      internal_links: 16,
+      external_links: 4,
+      image_count: 12,
+      images_with_alt: 12,
+      readability_score: 77,
+      keyword_density: 2.2,
+      content_freshness: '2024-01-11',
+      page_speed_score: 85
+    },
+    { 
+      id: '17', 
+      title: 'SEO Services', 
+      slug: 'services/seo-services', 
+      meta_title: 'SEO Services | Search Engine Optimization | Rhode Island', 
+      meta_description: 'Comprehensive SEO services for better search rankings.', 
+      focus_keyword: 'SEO services', 
+      canonical_url: 'https://amentiai.com/services/seo-services', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Service', 
+      seo_score: 91, 
+      published: true,
+      word_count: 2456,
+      heading_structure: { h1_count: 1, h2_count: 6, h3_count: 12, h4_count: 4, has_h1: true },
+      internal_links: 19,
+      external_links: 5,
+      image_count: 14,
+      images_with_alt: 14,
+      readability_score: 75,
+      keyword_density: 2.3,
+      content_freshness: '2024-01-14',
+      page_speed_score: 83
+    },
+    { 
+      id: '18', 
+      title: 'Branding & Identity Design', 
+      slug: 'services/branding-identity', 
+      meta_title: 'Branding & Identity Design Services | Logo Design', 
+      meta_description: 'Create a memorable brand identity for your business.', 
+      focus_keyword: 'branding identity design', 
+      canonical_url: 'https://amentiai.com/services/branding-identity', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Service', 
+      seo_score: 87, 
+      published: true,
+      word_count: 1789,
+      heading_structure: { h1_count: 1, h2_count: 4, h3_count: 8, h4_count: 2, has_h1: true },
+      internal_links: 13,
+      external_links: 3,
+      image_count: 9,
+      images_with_alt: 9,
+      readability_score: 79,
+      keyword_density: 2.1,
+      content_freshness: '2024-01-10',
+      page_speed_score: 87
+    },
+    { 
+      id: '19', 
+      title: 'Complete Growth Packages', 
+      slug: 'services/complete-growth-packages', 
+      meta_title: 'Complete Growth Packages | All-in-One Marketing Solutions', 
+      meta_description: 'All-in-one digital marketing solutions for business growth.', 
+      focus_keyword: 'complete growth packages', 
+      canonical_url: 'https://amentiai.com/services/complete-growth-packages', 
+      robots_index: true, 
+      robots_follow: true, 
+      schema_type: 'Service', 
+      seo_score: 90, 
+      published: true,
+      word_count: 2234,
+      heading_structure: { h1_count: 1, h2_count: 5, h3_count: 11, h4_count: 3, has_h1: true },
+      internal_links: 17,
+      external_links: 4,
+      image_count: 11,
+      images_with_alt: 11,
+      readability_score: 76,
+      keyword_density: 2.2,
+      content_freshness: '2024-01-13',
+      page_speed_score: 84
+    }
+  ]
+
+  const sampleSEOContent: SEOContent[] = [
+    {
+      id: '1',
+      section: 'hero',
+      title: 'Dominate Your Market with Proven Digital Marketing',
+      focus_keyword: 'digital marketing',
+      meta_title: 'Digital Marketing Services Rhode Island',
+      meta_description: 'Proven digital marketing strategies that help businesses grow.',
+      active: true
+    },
+    {
+      id: '2',
+      section: 'services',
+      title: 'Complete Digital Marketing Services',
+      focus_keyword: 'digital marketing services',
+      meta_title: 'Complete Digital Marketing Services',
+      meta_description: 'Comprehensive digital marketing solutions for your business.',
+      active: true
+    },
+    {
+      id: '3',
+      section: 'portfolio',
+      title: 'Real Results, Real Growth',
+      focus_keyword: 'marketing case studies',
+      meta_title: 'Digital Marketing Case Studies',
+      meta_description: 'See real results from our digital marketing campaigns.',
+      active: true
+    }
+  ]
+
+  useEffect(() => {
+    setSeoPages(sampleSEOPages)
+    setSeoContent(sampleSEOContent)
+    setLoading(false)
+  }, [])
+
+  const getSEOGrade = (score: number) => {
+    if (score >= 90) return { grade: 'A', color: 'text-green-600 bg-green-100' }
+    if (score >= 80) return { grade: 'B', color: 'text-blue-600 bg-blue-100' }
+    if (score >= 70) return { grade: 'C', color: 'text-yellow-600 bg-yellow-100' }
+    if (score >= 60) return { grade: 'D', color: 'text-orange-600 bg-orange-100' }
+    return { grade: 'F', color: 'text-red-600 bg-red-100' }
+  }
+
+  const getSEOIssues = (page: SEOPage) => {
+    const issues = []
+    if (!page.meta_title) issues.push('Missing meta title')
+    if (!page.meta_description) issues.push('Missing meta description')
+    if (!page.focus_keyword) issues.push('Missing focus keyword')
+    if (!page.og_title) issues.push('Missing Open Graph title')
+    if (!page.og_description) issues.push('Missing Open Graph description')
+    if (!page.canonical_url) issues.push('Missing canonical URL')
+    if (page.meta_title && page.meta_title.length > 60) issues.push('Meta title too long')
+    if (page.meta_description && page.meta_description.length > 160) issues.push('Meta description too long')
+    return issues
+  }
+
+  const averageSEOScore = seoPages.reduce((acc, page) => acc + (page.seo_score || 0), 0) / seoPages.length
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading SEO dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">SEO Dashboard</h1>
+          <p className="text-gray-600 mt-2">Monitor and manage SEO performance across your website</p>
+        </div>
+
+        {/* SEO Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Average SEO Score</p>
+                <p className="text-2xl font-bold text-gray-900">{Math.round(averageSEOScore)}/100</p>
+              </div>
+              <div className={`p-3 rounded-full ${getSEOGrade(Math.round(averageSEOScore)).color}`}>
+                <BarChart3 className="w-6 h-6" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Pages</p>
+                <p className="text-2xl font-bold text-gray-900">{seoPages.length}</p>
+              </div>
+              <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                <Globe className="w-6 h-6" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Published Pages</p>
+                <p className="text-2xl font-bold text-gray-900">{seoPages.filter(p => p.published).length}</p>
+              </div>
+              <div className="p-3 rounded-full bg-green-100 text-green-600">
+                <CheckCircle className="w-6 h-6" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Content Items</p>
+                <p className="text-2xl font-bold text-gray-900">{seoContent.length}</p>
+              </div>
+              <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+                <Target className="w-6 h-6" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 10 Onsite SEO Metrics */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Onsite SEO Metrics</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* 1. Content Quality */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Content Quality</h3>
+                <Target className="w-4 h-4 text-blue-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Avg Word Count</span>
+                  <span className="font-medium">{Math.round(seoPages.reduce((sum, page) => sum + (page.word_count || 0), 0) / seoPages.length)}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Readability</span>
+                  <span className="font-medium">{Math.round(seoPages.reduce((sum, page) => sum + (page.readability_score || 0), 0) / seoPages.length)}/100</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Keyword Optimization */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Keyword Optimization</h3>
+                <Search className="w-4 h-4 text-green-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Avg Density</span>
+                  <span className="font-medium">{Math.round((seoPages.reduce((sum, page) => sum + (page.keyword_density || 0), 0) / seoPages.length) * 10) / 10}%</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Pages w/ Focus KW</span>
+                  <span className="font-medium">{seoPages.filter(page => page.focus_keyword).length}/{seoPages.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Technical SEO */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Technical SEO</h3>
+                <BarChart3 className="w-4 h-4 text-purple-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Avg Speed Score</span>
+                  <span className="font-medium">{Math.round(seoPages.reduce((sum, page) => sum + (page.page_speed_score || 0), 0) / seoPages.length)}/100</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Indexed Pages</span>
+                  <span className="font-medium">{seoPages.filter(page => page.robots_index).length}/{seoPages.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Content Structure */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Content Structure</h3>
+                <Eye className="w-4 h-4 text-orange-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Pages w/ H1</span>
+                  <span className="font-medium">{seoPages.filter(page => page.heading_structure?.has_h1).length}/{seoPages.length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Avg H2 Count</span>
+                  <span className="font-medium">{Math.round(seoPages.reduce((sum, page) => sum + (page.heading_structure?.h2_count || 0), 0) / seoPages.length)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Link Structure */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Link Structure</h3>
+                <ExternalLink className="w-4 h-4 text-indigo-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Avg Internal Links</span>
+                  <span className="font-medium">{Math.round(seoPages.reduce((sum, page) => sum + (page.internal_links || 0), 0) / seoPages.length)}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Avg External Links</span>
+                  <span className="font-medium">{Math.round(seoPages.reduce((sum, page) => sum + (page.external_links || 0), 0) / seoPages.length)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 6. Image Optimization */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Image Optimization</h3>
+                <div className="w-4 h-4 bg-indigo-500 rounded flex items-center justify-center">
+                  <span className="text-white text-xs">📷</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Images w/ Alt Text</span>
+                  <span className="font-medium">{Math.round((seoPages.reduce((sum, page) => sum + (page.images_with_alt || 0), 0) / seoPages.reduce((sum, page) => sum + (page.image_count || 0), 0)) * 100)}%</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Avg Images/Page</span>
+                  <span className="font-medium">{Math.round(seoPages.reduce((sum, page) => sum + (page.image_count || 0), 0) / seoPages.length)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 7. Content Freshness */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Content Freshness</h3>
+                <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Recently Updated</span>
+                  <span className="font-medium">{seoPages.filter(page => {
+                    const date = new Date(page.content_freshness || '2024-01-01')
+                    const now = new Date()
+                    const diffTime = Math.abs(now.getTime() - date.getTime())
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                    return diffDays <= 30
+                  }).length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Stale Content</span>
+                  <span className="font-medium">{seoPages.filter(page => {
+                    const date = new Date(page.content_freshness || '2024-01-01')
+                    const now = new Date()
+                    const diffTime = Math.abs(now.getTime() - date.getTime())
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                    return diffDays > 90
+                  }).length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 8. Meta Tags */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Meta Tags</h3>
+                <Edit className="w-4 h-4 text-teal-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Meta Titles</span>
+                  <span className="font-medium">{seoPages.filter(page => page.meta_title).length}/{seoPages.length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Meta Descriptions</span>
+                  <span className="font-medium">{seoPages.filter(page => page.meta_description).length}/{seoPages.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 9. Schema Markup */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Schema Markup</h3>
+                <div className="w-4 h-4 bg-blue-500 rounded"></div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Pages w/ Schema</span>
+                  <span className="font-medium">{seoPages.filter(page => page.schema_type).length}/{seoPages.length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Schema Types</span>
+                  <span className="font-medium">{new Set(seoPages.map(page => page.schema_type).filter(Boolean)).size}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 10. Overall Performance */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-700">Overall Performance</h3>
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Excellent (90+)</span>
+                  <span className="font-medium text-green-600">{seoPages.filter(page => (page.seo_score || 0) >= 90).length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Good (70-89)</span>
+                  <span className="font-medium text-blue-600">{seoPages.filter(page => (page.seo_score || 0) >= 70 && (page.seo_score || 0) < 90).length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Needs Work (<70)</span>
+                  <span className="font-medium text-red-600">{seoPages.filter(page => (page.seo_score || 0) < 70).length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pages SEO Analysis */}
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">Pages SEO Analysis</h2>
+            <p className="text-gray-600 mt-1">Detailed SEO analysis for each page</p>
+          </div>
+
+          <div className="p-6">
+            <div className="space-y-4">
+              {seoPages.map((page) => {
+                const grade = getSEOGrade(page.seo_score || 0)
+                const issues = getSEOIssues(page)
+                
+                return (
+                  <div key={page.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <h3 className="font-medium text-gray-900">{page.title}</h3>
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          page.published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {page.published ? 'Published' : 'Draft'}
+                        </span>
+                        <span className="text-sm text-gray-500">/{page.slug}</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${grade.color}`}>
+                          {grade.grade} ({page.seo_score || 0}/100)
+                        </div>
+                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        {page.published && (
+                          <a
+                            href={`/${page.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 text-gray-600 hover:bg-gray-100 rounded"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Focus Keyword</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {page.focus_keyword || <span className="text-red-500">Not set</span>}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Schema Type</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {page.schema_type || 'Not set'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Indexing</p>
+                        <div className="flex space-x-4">
+                          <span className={`text-sm ${page.robots_index ? 'text-green-600' : 'text-red-600'}`}>
+                            {page.robots_index ? '✓ Index' : '✗ No Index'}
+                          </span>
+                          <span className={`text-sm ${page.robots_follow ? 'text-green-600' : 'text-red-600'}`}>
+                            {page.robots_follow ? '✓ Follow' : '✗ No Follow'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {issues.length > 0 && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <AlertTriangle className="w-4 h-4 text-red-600" />
+                          <h4 className="text-sm font-medium text-red-800">SEO Issues Found</h4>
+                        </div>
+                        <ul className="text-sm text-red-700 space-y-1">
+                          {issues.map((issue, index) => (
+                            <li key={index}>• {issue}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Content SEO Analysis */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">Content SEO Analysis</h2>
+            <p className="text-gray-600 mt-1">SEO analysis for website content sections</p>
+          </div>
+
+          <div className="p-6">
+            <div className="space-y-4">
+              {seoContent.map((content) => (
+                <div key={content.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <h3 className="font-medium text-gray-900">{content.title}</h3>
+                      <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                        {content.section}
+                      </span>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        content.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {content.active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <button className="p-2 text-blue-600 hover:bg-blue-100 rounded">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Focus Keyword</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {content.focus_keyword || <span className="text-red-500">Not set</span>}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Meta Title</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {content.meta_title ? (
+                          <span className={content.meta_title.length > 60 ? 'text-red-500' : 'text-green-600'}>
+                            {content.meta_title} ({content.meta_title.length}/60)
+                          </span>
+                        ) : (
+                          <span className="text-red-500">Not set</span>
+                        )}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Meta Description</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {content.meta_description ? (
+                          <span className={content.meta_description.length > 160 ? 'text-red-500' : 'text-green-600'}>
+                            {content.meta_description.substring(0, 50)}... ({content.meta_description.length}/160)
+                          </span>
+                        ) : (
+                          <span className="text-red-500">Not set</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* SEO Recommendations */}
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-4">SEO Recommendations</h3>
+          <ul className="space-y-2 text-blue-800">
+            <li>• Add focus keywords to all pages and content items</li>
+            <li>• Optimize meta titles to be between 30-60 characters</li>
+            <li>• Write compelling meta descriptions under 160 characters</li>
+            <li>• Add Open Graph images for better social media sharing</li>
+            <li>• Set up canonical URLs to avoid duplicate content issues</li>
+            <li>• Add structured data (Schema.org) for rich snippets</li>
+            <li>• Ensure all images have descriptive alt text</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+}

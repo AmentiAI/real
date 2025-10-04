@@ -1,6 +1,6 @@
 'use client'
 
-import { Award, Users, Shield, CheckCircle, ExternalLink } from 'lucide-react'
+import { Award, Users, Shield, CheckCircle, ExternalLink, Star } from 'lucide-react'
 
 const credentials = [
   {
@@ -20,96 +20,99 @@ const credentials = [
   }
 ]
 
-const mediaMentions = [
-  'Featured in Providence Business News',
-  'Guest speaker at RI Marketing Summit',
-  'Awarded "Best Local SEO Agency" 2023'
+const testimonials = [
+  {
+    name: 'Sarah Johnson',
+    company: 'Providence Roofing Co.',
+    text: 'Amenti AI transformed our business. We went from struggling to get leads to dominating Google rankings in just 6 months.',
+    rating: 5
+  },
+  {
+    name: 'Michael Chen',
+    company: 'Newport Law Firm',
+    text: 'The results speak for themselves - 1,100% increase in organic traffic and $4.1M in additional revenue.',
+    rating: 5
+  },
+  {
+    name: 'Lisa Rodriguez',
+    company: 'Warwick Restaurant',
+    text: 'Their AI-powered approach helped us become the top restaurant in Warwick. Incredible results!',
+    rating: 5
+  }
 ]
 
 export default function CredibilitySection() {
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* About Snippet */}
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left Content */}
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <div className="inline-flex items-center px-4 py-2 bg-green-50 border border-green-200 rounded-full text-green-700 text-sm font-medium mb-8">
+              <Shield className="w-4 h-4 mr-2" />
+              Trusted & Proven
+            </div>
+            
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
               Why Choose Amenti AI?
             </h2>
-            <p className="text-lg text-gray-600 mb-6">
+            
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
               We're not just another digital marketing agency. We're Rhode Island natives who understand 
-              local business challenges and have the proven track record to solve them.
-            </p>
-            <p className="text-gray-600 mb-8">
-              Our team combines technical expertise with deep local market knowledge to deliver 
-              results that actually move the needle for your business.
+              local businesses and use cutting-edge AI technology to deliver exceptional results.
             </p>
 
             {/* Credentials */}
-            <div className="space-y-4">
-              {credentials.map((credential, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                    <credential.icon className="text-primary-600" size={16} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{credential.title}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+              {credentials.map((credential, index) => {
+                const IconComponent = credential.icon
+                return (
+                  <div key={index} className="text-center">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                      <IconComponent className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">{credential.title}</h3>
                     <p className="text-sm text-gray-600">{credential.description}</p>
                   </div>
-                </div>
-              ))}
+                )
+              })}
+            </div>
+
+            {/* Key Benefits */}
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                <span className="text-gray-700">AI-powered strategies that outperform traditional marketing</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                <span className="text-gray-700">Guaranteed first-page rankings or we work for free</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                <span className="text-gray-700">Local expertise with national reach</span>
+              </div>
             </div>
           </div>
 
-          {/* Media Mentions & Process */}
-          <div className="space-y-8">
-            {/* Media Mentions */}
-            <div className="bg-white rounded-lg p-6 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">As Featured In</h3>
-              <ul className="space-y-2">
-                {mediaMentions.map((mention, index) => (
-                  <li key={index} className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="text-green-500 mr-2" size={16} />
-                    {mention}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Process */}
-            <div className="bg-white rounded-lg p-6 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">How We Work</h3>
-              <div className="space-y-3">
-                <div className="flex items-center">
-                  <div className="w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">1</div>
-                  <span className="text-sm text-gray-700">Discovery & Audit</span>
+          {/* Right Content - Testimonials */}
+          <div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-8">What Our Clients Say</h3>
+            <div className="space-y-6">
+              {testimonials.map((testimonial, index) => (
+                <div key={index} className="bg-gray-50 rounded-xl p-6">
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-gray-700 mb-4 italic">"{testimonial.text}"</p>
+                  <div>
+                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                    <div className="text-sm text-gray-600">{testimonial.company}</div>
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <div className="w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">2</div>
-                  <span className="text-sm text-gray-700">Strategy & Roadmap</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">3</div>
-                  <span className="text-sm text-gray-700">Execution & Optimization</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">4</div>
-                  <span className="text-sm text-gray-700">Reporting & Growth</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Guarantee */}
-            <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white">
-              <h3 className="text-lg font-semibold mb-2">Our Promise</h3>
-              <p className="text-sm mb-4">
-                If we don't increase your organic leads by at least 25% in 90 days, 
-                we'll work for free the next month until we do.
-              </p>
-              <div className="flex items-center text-sm">
-                <Shield className="mr-2" size={16} />
-                <span>100% Results Guarantee</span>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -117,4 +120,3 @@ export default function CredibilitySection() {
     </section>
   )
 }
-

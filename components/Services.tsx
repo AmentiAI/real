@@ -1,279 +1,259 @@
 'use client'
 
-import { useState } from 'react'
-import { Search, Globe, BarChart3, Target, Users, Zap, ArrowRight, CheckCircle, Star } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { ArrowRight, CheckCircle, Star, Search, Monitor, TrendingUp, Target, Zap, BarChart3, Users, Award, Clock, Shield } from 'lucide-react'
 
-const services = [
+interface Service {
+  id: number
+  title: string
+  description: string
+  icon: any
+  features: string[]
+  results: string[]
+  color: string
+  gradient: string
+  href: string
+}
+
+const services: Service[] = [
   {
-    id: 'complete-growth-packages',
-    icon: Target,
-    title: 'Complete Growth Packages',
-    description: 'All-in-one solutions combining website development with ongoing SEO for maximum business growth.',
-    tiers: [
-      { name: 'Starter Growth Package', price: '$2,200 + $1,200/mo', features: ['5-page SEO-ready website', '20 local keywords', 'Google Business optimization', 'Monthly SEO reports'] },
-      { name: 'Business Growth Package', price: '$5,000 + $3,500/mo', features: ['10-15 page custom website', '60 targeted keywords', 'Technical SEO audit', '4 blogs/month'] },
-      { name: 'Enterprise Domination Package', price: '$12,500 + $8,000/mo', features: ['20-30+ page premium website', '150 targeted keywords', 'Advanced backlink outreach', 'Dedicated account manager'] }
-    ],
-    popular: true,
-    category: 'Complete Packages'
-  },
-  {
-    id: 'website-design',
-    icon: Target,
-    title: 'Website Design & Development',
-    description: 'Professional websites that convert visitors into customers with modern design and advanced functionality.',
-    tiers: [
-      { name: 'Starter Website', price: '$1,000', features: ['Up to 5 SEO-ready pages', 'Mobile-friendly design', 'Basic SEO setup', 'Google Analytics'] },
-      { name: 'Growth Website', price: '$3,500', features: ['10-15 SEO-optimized pages', 'Keyword-targeted copywriting', 'Lead capture forms', 'Blog system setup'] },
-      { name: 'Dominate Website', price: '$7,500+', features: ['20-30+ pages', 'Conversion funnels', 'Multi-location SEO', 'Custom integrations'] }
-    ],
-    popular: false,
-    category: 'Development'
-  },
-  {
-    id: 'seo-services',
+    id: 1,
+    title: 'AI-Powered SEO',
+    description: 'Advanced SEO strategies that dominate search results and drive massive organic traffic growth.',
     icon: Search,
-    title: 'SEO Services',
-    description: 'Comprehensive SEO strategies that dominate search results and drive qualified traffic to your business.',
-    tiers: [
-      { name: 'Starter SEO', price: '$1,200/mo', features: ['20 local keywords', 'Google Business optimization', 'On-page SEO', 'Monthly reports'] },
-      { name: 'Growth SEO', price: '$3,500/mo', features: ['60 regional keywords', 'Technical SEO audit', '4 blogs/month', 'Backlink campaigns'] },
-      { name: 'Dominate SEO', price: '$8,000+/mo', features: ['150+ keywords', 'Enterprise technical SEO', '8+ blogs/month', 'Dedicated manager'] }
+    features: [
+      'Advanced keyword research & clustering',
+      'Technical SEO optimization',
+      'Content strategy & optimization',
+      'Link building & authority development',
+      'Local SEO & Google My Business',
+      'Monthly performance reporting'
     ],
-    popular: false,
-    category: 'SEO Services'
+    results: [
+      '400% average traffic increase',
+      '98% first-page rankings',
+      '150+ targeted keywords',
+      '30-day results guarantee'
+    ],
+    color: 'blue',
+    gradient: 'from-blue-500 to-blue-600',
+    href: '/services/seo-services'
   },
   {
-    id: 'branding-identity',
-    icon: BarChart3,
-    title: 'Branding & Identity',
-    description: 'Create a powerful brand identity that resonates with your audience and builds trust in your business.',
-    tiers: [
-      { name: 'Starter Branding', price: '$750', features: ['Logo design (3 concepts)', 'Basic color palette', 'Font selection'] },
-      { name: 'Growth Branding', price: '$2,500', features: ['Full brand kit', 'Style guide', 'Marketing collateral'] },
-      { name: 'Dominate Branding', price: '$5,000+', features: ['Enterprise identity system', 'Multi-logo variations', 'Full corporate collateral'] }
+    id: 2,
+    title: 'Website Design & Development',
+    description: 'Stunning, conversion-optimized websites that turn visitors into customers.',
+    icon: Monitor,
+    features: [
+      'Custom responsive design',
+      'Mobile-first optimization',
+      'Conversion rate optimization',
+      'E-commerce integration',
+      'CMS & content management',
+      'Ongoing maintenance & support'
     ],
-    popular: false,
-    category: 'Branding'
+    results: [
+      '50% average conversion increase',
+      'Mobile-optimized design',
+      'Fast loading speeds',
+      'SEO-ready structure'
+    ],
+    color: 'green',
+    gradient: 'from-green-500 to-green-600',
+    href: '/services/website-design'
   },
   {
-    id: 'content-marketing',
-    icon: Users,
-    title: 'Content Marketing',
-    description: 'Strategic content that ranks, engages, and converts your target audience into loyal customers.',
-    tiers: [
-      { name: 'Starter Content', price: '$500/mo', features: ['2 SEO blog posts', 'Keyword research', 'Topic research'] },
-      { name: 'Growth Content', price: '$1,200/mo', features: ['4-6 blog posts', 'Content calendar', 'SEO clustering'] },
-      { name: 'Dominate Content', price: '$2,500+/mo', features: ['8-12 blogs/month', 'Infographics', 'AI-assisted scaling'] }
+    id: 3,
+    title: 'Complete Growth Packages',
+    description: 'End-to-end digital marketing solutions that transform your entire online presence.',
+    icon: TrendingUp,
+    features: [
+      'Full SEO + Website package',
+      'Content marketing strategy',
+      'Social media management',
+      'Paid advertising campaigns',
+      'Analytics & reporting',
+      'Dedicated account manager'
     ],
-    popular: false,
-    category: 'Content'
-  },
-  {
-    id: 'paid-ads-social-media',
-    icon: Globe,
-    title: 'Paid Ads & Social Media',
-    description: 'Targeted advertising campaigns that reach your ideal customers and drive measurable results.',
-    tiers: [
-      { name: 'Starter Ads/Social', price: '$750/mo', features: ['Google Ads setup', '3 posts/week', 'Basic reporting'] },
-      { name: 'Growth Ads/Social', price: '$1,500-2,000/mo', features: ['Multiple campaigns', '5 posts/week', 'Growth strategy'] },
-      { name: 'Dominate Ads/Social', price: '$3,000+/mo', features: ['Advanced funnels', 'Daily content', 'Dedicated manager'] }
+    results: [
+      '300% revenue increase',
+      'Complete digital transformation',
+      'All-in-one solution',
+      'Priority support & strategy'
     ],
-    popular: false,
-    category: 'Marketing'
-  },
-  {
-    id: 'platforms-custom-systems',
-    icon: Zap,
-    title: 'Platforms & Custom Systems',
-    description: 'Build comprehensive digital platforms and custom systems that scale with your business growth.',
-    tiers: [
-      { name: 'Startup MVP', price: '$15,000+', features: ['Basic SaaS app', 'Admin panel', 'Core features'] },
-      { name: 'Growth Platform', price: '$50,000+', features: ['Multi-user system', 'Payment integration', 'API integrations'] },
-      { name: 'Enterprise Platform', price: '$100,000+', features: ['Multi-tenant platform', 'AI features', 'Custom architecture'] }
-    ],
-    popular: false,
-    category: 'Platforms'
-  },
-  {
-    icon: Globe,
-    title: 'White Label SEO',
-    description: 'Agency-focused SEO services that you can resell to your clients at 2-3x markup for maximum profit.',
-    tiers: [
-      { name: 'Starter SEO', price: '$1,200/mo', features: ['20 keywords (local focus)', 'Google Business optimization', 'On-page SEO + citations', 'Agency-branded reports'] },
-      { name: 'Growth SEO', price: '$3,500/mo', features: ['60 keywords (local + regional)', 'Technical SEO audit', '4 blogs/month', 'White-label dashboard'] },
-      { name: 'Dominate SEO', price: '$8,000/mo', features: ['150 keywords (local + national)', 'Enterprise technical SEO', '8+ blogs/month + automation', 'Dedicated account manager'] }
-    ],
-    popular: false,
-    category: 'White Label'
-  },
-  {
-    icon: Target,
-    title: 'White Label Website Design',
-    description: 'Professional website design services for agencies to resell at 2-3x markup with full white-label support.',
-    tiers: [
-      { name: 'Starter Website', price: '$1,000', features: ['Up to 5 SEO-optimized pages', 'Responsive, mobile-friendly', 'Basic SEO setup', 'Google Analytics + Search Console'] },
-      { name: 'Growth Website', price: '$3,500', features: ['10-15 SEO-optimized pages', 'Service + location landing pages', 'Keyword-targeted copywriting', 'Lead capture forms'] },
-      { name: 'Dominate Website', price: '$7,500+', features: ['20-30+ custom pages', 'Conversion funnels', 'Multi-location SEO', 'Custom integrations'] }
-    ],
-    popular: false,
-    category: 'White Label'
+    color: 'purple',
+    gradient: 'from-purple-500 to-purple-600',
+    href: '/services/complete-growth-packages'
   }
 ]
 
 export default function Services() {
-  const [selectedTiers, setSelectedTiers] = useState<{[key: number]: number}>({})
+  const [activeService, setActiveService] = useState(0)
+  const [isVisible, setIsVisible] = useState(false)
 
-  const handleTierClick = (serviceIndex: number, tierIndex: number) => {
-    setSelectedTiers(prev => ({
-      ...prev,
-      [serviceIndex]: tierIndex
-    }))
-  }
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const element = document.getElementById('services-section')
+    if (element) {
+      observer.observe(element)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  const stats = [
+    { icon: Users, value: '150+', label: 'Successful Clients' },
+    { icon: TrendingUp, value: '400%', label: 'Average Growth' },
+    { icon: Award, value: '98%', label: 'First Page Rankings' },
+    { icon: Clock, value: '30 Days', label: 'To First Results' }
+  ]
 
   return (
-    <section className="py-12 bg-white">
-      <div className="container-custom">
-        {/* Professional Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
-            We Build Any Platform Your Business Needs
+    <section id="services-section" className="py-24 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-6">
+            <Star className="w-4 h-4 mr-2" />
+            Our Services
+          </div>
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            Complete Digital Marketing Solutions
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            From simple websites to complex enterprise platforms, we create comprehensive digital solutions 
-            that scale with your business.
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            From SEO to web design, we provide everything you need to dominate your market and grow your business online.
           </p>
         </div>
 
-        {/* Professional Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
-          {services.map((service, serviceIndex) => {
-            const selectedTier = selectedTiers[serviceIndex] ?? 1 // Default to middle tier
-            const currentTier = service.tiers[selectedTier]
-            
-            return (
-              <div key={serviceIndex} className={`feature-card group ${service.popular ? 'pricing-card-featured' : ''} animate-fade-in-up-delay-${serviceIndex + 1} h-full`}>
-                {service.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-primary-600 to-accent-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      Most Popular
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+          {services.map((service, index) => (
+            <div
+              key={service.id}
+              className={`group relative bg-white rounded-3xl p-8 shadow-lg border-2 transition-all duration-500 hover:shadow-2xl hover:scale-105 cursor-pointer ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              } ${
+                activeService === index ? 'border-blue-500 ring-4 ring-blue-500/20' : 'border-gray-200 hover:border-blue-300'
+              }`}
+              style={{animationDelay: `${index * 0.2}s`}}
+              onMouseEnter={() => setActiveService(index)}
+            >
+              {/* Icon */}
+              <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${service.gradient} rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <service.icon className="w-8 h-8 text-white" />
+              </div>
+
+              {/* Content */}
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                {service.title}
+              </h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                {service.description}
+              </p>
+
+              {/* Features */}
+              <ul className="space-y-3 mb-6">
+                {service.features.slice(0, 4).map((feature, featureIndex) => (
+                  <li key={featureIndex} className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-600 text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Results */}
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <h4 className="font-semibold text-gray-900 mb-3">Key Results:</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {service.results.map((result, resultIndex) => (
+                    <div key={resultIndex} className="text-sm text-gray-600">
+                      • {result}
                     </div>
-                  </div>
-                )}
-                
-                <div className="flex items-start mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-200 ${
-                    service.popular ? 'bg-gradient-to-r from-primary-100 to-accent-100' : 'bg-primary-100'
-                  }`}>
-                    <service.icon className={`${service.popular ? 'text-primary-600' : 'text-primary-600'}`} size={20} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors duration-200">
-                        {service.title}
-                      </h3>
-                      <div className="badge-primary text-xs">
-                        {service.category}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <p className="text-gray-600 mb-4 leading-relaxed text-sm">
-                  {service.description}
-                </p>
-                
-                {/* Interactive Pricing Tiers */}
-                <div className="space-y-2 mb-4">
-                  {service.tiers.map((tier, tierIndex) => (
-                    <button
-                      key={tierIndex}
-                      onClick={() => handleTierClick(serviceIndex, tierIndex)}
-                      className={`w-full p-3 rounded-lg border-2 transition-all duration-200 text-left ${
-                        selectedTier === tierIndex 
-                          ? 'border-primary-500 bg-primary-50 shadow-md' 
-                          : 'border-gray-200 bg-white hover:border-primary-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-semibold text-gray-900 text-sm">{tier.name}</h4>
-                        <div className="text-sm font-bold text-primary-600">{tier.price}</div>
-                      </div>
-                      {tier.popular && (
-                        <div className="text-xs text-primary-600 font-semibold mb-1">Most Popular</div>
-                      )}
-                    </button>
                   ))}
                 </div>
-
-                {/* Selected Tier Details */}
-                {currentTier && (
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-gray-900 text-sm">{currentTier.name}</h4>
-                      <div className="text-lg font-bold text-primary-600">{currentTier.price}</div>
-                    </div>
-                    <div className="space-y-2">
-                      <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">What's Included:</h5>
-                      <ul className="space-y-1">
-                        {currentTier.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-start text-xs text-gray-600">
-                            <CheckCircle className="w-3 h-3 text-success-500 mr-2 flex-shrink-0 mt-0.5" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="border-t border-gray-100 pt-4 mt-auto">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-xs text-gray-500">
-                      Click a plan to see details
-                    </div>
-                    {service.popular && (
-                      <div className="badge-primary text-xs">
-                        Recommended
-                      </div>
-                    )}
-                  </div>
-                  <Link
-                    href={`/checkout?service=${service.id}&tier=${selectedTier}`}
-                    className="w-full btn-primary flex items-center justify-center group text-sm py-2"
-                  >
-                    Get Started with {currentTier?.name || 'Selected Plan'}
-                    <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-200" size={14} />
-                  </Link>
-                </div>
               </div>
-            )
-          })}
+
+              {/* CTA */}
+              <Link
+                href={service.href}
+                className={`w-full py-3 px-6 rounded-xl font-semibold text-center transition-all duration-300 ${
+                  activeService === index
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                }`}
+              >
+                Learn More
+                <ArrowRight className="inline-block ml-2 w-4 h-4" />
+              </Link>
+            </div>
+          ))}
         </div>
 
-        {/* Professional CTA Section */}
-        <div className="text-center">
-          <div className="card-premium p-12 max-w-5xl mx-auto">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-primary-600 to-accent-600 rounded-2xl flex items-center justify-center mr-4">
-                <BarChart3 className="text-white" size={28} />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900">
-                Ready to Build Your Digital Platform?
-              </h3>
+        {/* Stats Section */}
+        <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 rounded-3xl p-12 text-center relative overflow-hidden">
+          {/* Background Elements */}
+          <div className="absolute inset-0">
+            <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-10 right-10 w-24 h-24 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-2xl"></div>
+          </div>
+
+          <div className="relative z-10">
+            <h3 className="text-3xl lg:text-4xl font-bold text-white mb-8">
+              Proven Results Across All Industries
+            </h3>
+            <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto">
+              Our data-driven approach delivers consistent, measurable results that transform businesses and drive sustainable growth.
+            </p>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-4">
+                    <stat.icon className="w-8 h-8 text-blue-300" />
+                  </div>
+                  <div className="text-3xl lg:text-4xl font-bold text-white mb-2">
+                    {stat.value}
+                  </div>
+                  <div className="text-blue-200 font-medium">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto text-balance">
-              Whether you need a simple website or a complex enterprise platform, we have the expertise 
-              to build exactly what your business needs. From custom applications to AI-powered solutions, 
-              we create digital platforms that scale with your growth.
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="mt-16 text-center">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              Ready to Transform Your Business?
+            </h3>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+              Join 150+ successful businesses that have generated millions in additional revenue with our proven strategies.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/contact" className="btn-primary text-lg px-10 py-4">
-                Discuss Your Project
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                Get Free Consultation
+                <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
-              <Link href="/case-studies" className="btn-secondary text-lg px-10 py-4">
-                View Our Work
+              <Link
+                href="/pricing"
+                className="inline-flex items-center justify-center px-8 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-blue-600 hover:text-blue-600 transition-all duration-300"
+              >
+                View Pricing
               </Link>
             </div>
           </div>

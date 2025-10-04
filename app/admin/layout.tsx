@@ -6,25 +6,29 @@ import { usePathname } from 'next/navigation'
 import { 
   LayoutDashboard, 
   Users, 
-  Briefcase, 
   FileText, 
   Settings, 
   LogOut,
   Menu,
   X,
   MessageSquare,
-  BarChart3
+  Search,
+  Package,
+  CreditCard
 } from 'lucide-react'
 
-const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'Clients', href: '/admin/clients', icon: Users },
-  { name: 'Projects', href: '/admin/projects', icon: Briefcase },
-  { name: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare },
-  { name: 'Content', href: '/admin/content', icon: FileText },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
-]
+  const navigation = [
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'SEO Dashboard', href: '/admin/seo', icon: Search },
+    { name: 'Page Manager', href: '/admin/pages', icon: FileText },
+    { name: 'Packages', href: '/admin/packages', icon: Package },
+    { name: 'PayPal Config', href: '/admin/paypal-config', icon: CreditCard },
+    { name: 'Branding', href: '/admin/branding', icon: Settings },
+    { name: 'Clients', href: '/admin/clients', icon: Users },
+    { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
+    { name: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare },
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
+  ]
 
 export default function AdminLayout({
   children,
@@ -135,6 +139,19 @@ export default function AdminLayout({
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Back to Website */}
+        <div className="flex-shrink-0 border-t border-gray-200 p-4">
+          <Link
+            href="/"
+            className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Website
+          </Link>
         </div>
       </>
     )

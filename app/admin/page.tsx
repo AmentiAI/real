@@ -1,204 +1,82 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Users, Briefcase, MessageSquare, TrendingUp, DollarSign, Activity } from 'lucide-react'
-
-interface DashboardStats {
-  totalClients: number
-  activeProjects: number
-  newInquiries: number
-  monthlyRevenue: number
-  conversionRate: number
-  avgResponseTime: number
-}
-
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalClients: 0,
-    activeProjects: 0,
-    newInquiries: 0,
-    monthlyRevenue: 0,
-    conversionRate: 0,
-    avgResponseTime: 0
-  })
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Fetch dashboard stats from API
-    fetchDashboardStats()
-  }, [])
-
-  const fetchDashboardStats = async () => {
-    try {
-      const response = await fetch('/api/admin/dashboard-stats')
-      if (response.ok) {
-        const data = await response.json()
-        setStats(data)
-      }
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const statCards = [
-    {
-      title: 'Total Clients',
-      value: stats.totalClients,
-      icon: Users,
-      color: 'bg-blue-500',
-      change: '+12%',
-      changeType: 'positive'
-    },
-    {
-      title: 'Active Projects',
-      value: stats.activeProjects,
-      icon: Briefcase,
-      color: 'bg-green-500',
-      change: '+8%',
-      changeType: 'positive'
-    },
-    {
-      title: 'New Inquiries',
-      value: stats.newInquiries,
-      icon: MessageSquare,
-      color: 'bg-yellow-500',
-      change: '+23%',
-      changeType: 'positive'
-    },
-    {
-      title: 'Monthly Revenue',
-      value: `$${stats.monthlyRevenue.toLocaleString()}`,
-      icon: DollarSign,
-      color: 'bg-purple-500',
-      change: '+15%',
-      changeType: 'positive'
-    }
-  ]
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Welcome back! Here's what's happening with your business today.
+          Welcome to the admin dashboard! No authentication required.
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => (
-          <div key={index} className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className={`p-3 rounded-md ${stat.color}`}>
-                    <stat.icon className="h-6 w-6 text-white" />
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      {stat.title}
-                    </dt>
-                    <dd className="flex items-baseline">
-                      <div className="text-2xl font-semibold text-gray-900">
-                        {stat.value}
-                      </div>
-                      <div className={`ml-2 flex items-baseline text-sm font-semibold ${
-                        stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {stat.change}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">System Status</h2>
+        <div className="space-y-2">
+          <p><strong>Authentication:</strong> Disabled</p>
+          <p><strong>Database:</strong> Connected</p>
+          <p><strong>Admin Access:</strong> Open</p>
+        </div>
       </div>
 
-      {/* Charts and Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Revenue Overview</h3>
-          <div className="h-64 flex items-center justify-center text-gray-500">
-            <div className="text-center">
-              <TrendingUp className="h-12 w-12 mx-auto mb-2 text-gray-400" />
-              <p>Revenue chart will be displayed here</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Total Clients</p>
+              <p className="text-2xl font-semibold text-gray-900">0</p>
             </div>
           </div>
         </div>
 
-        {/* Recent Inquiries */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Inquiries</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="font-medium text-gray-900">John Smith</p>
-                <p className="text-sm text-gray-500">SEO Services</p>
-              </div>
-              <span className="text-xs text-gray-400">2 hours ago</span>
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="font-medium text-gray-900">Sarah Johnson</p>
-                <p className="text-sm text-gray-500">Website Development</p>
-              </div>
-              <span className="text-xs text-gray-400">4 hours ago</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div>
-                <p className="font-medium text-gray-900">Mike Davis</p>
-                <p className="text-sm text-gray-500">Digital Marketing</p>
-              </div>
-              <span className="text-xs text-gray-400">6 hours ago</span>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Active Projects</p>
+              <p className="text-2xl font-semibold text-gray-900">0</p>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-            <Users className="h-8 w-8 text-primary-600 mr-3" />
-            <div className="text-left">
-              <p className="font-medium text-gray-900">Add New Client</p>
-              <p className="text-sm text-gray-500">Register a new business client</p>
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
             </div>
-          </button>
-          <button className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-            <Briefcase className="h-8 w-8 text-primary-600 mr-3" />
-            <div className="text-left">
-              <p className="font-medium text-gray-900">Create Project</p>
-              <p className="text-sm text-gray-500">Start a new project</p>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">New Inquiries</p>
+              <p className="text-2xl font-semibold text-gray-900">0</p>
             </div>
-          </button>
-          <button className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-            <MessageSquare className="h-8 w-8 text-primary-600 mr-3" />
-            <div className="text-left">
-              <p className="font-medium text-gray-900">View Inquiries</p>
-              <p className="text-sm text-gray-500">Check new messages</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
             </div>
-          </button>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Revenue</p>
+              <p className="text-2xl font-semibold text-gray-900">$0</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   )
 }
-

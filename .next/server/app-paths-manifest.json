@@ -1,1 +1,7 @@
-{}
+{
+  "/locations/providence/page": "app/locations/providence/page.js",
+  "/page": "app/page.js",
+  "/services/[slug]/page": "app/services/[slug]/page.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/industries/roofers/page": "app/industries/roofers/page.js"
+}

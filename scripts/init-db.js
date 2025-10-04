@@ -126,6 +126,46 @@ async function initDatabase() {
       )
     `);
 
+    // Client notes table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS client_notes (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER REFERENCES clients(id) ON DELETE CASCADE,
+        note TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Client communications table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS client_communications (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER REFERENCES clients(id) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('email', 'call', 'meeting', 'note')),
+        subject VARCHAR(255),
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Client documents table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS client_documents (
+        id SERIAL PRIMARY KEY,
+        client_id INTEGER REFERENCES clients(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        file_path VARCHAR(500) NOT NULL,
+        file_type VARCHAR(100),
+        file_size INTEGER,
+        category VARCHAR(100) DEFAULT 'general',
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Blog posts table
     await client.query(`
       CREATE TABLE IF NOT EXISTS blog_posts (

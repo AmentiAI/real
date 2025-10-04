@@ -1,720 +1,579 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { CheckCircle, ArrowLeft, CreditCard, Shield, Clock } from 'lucide-react'
 import Link from 'next/link'
+import { Sparkles, CheckCircle, Star, ArrowRight, ChevronDown } from 'lucide-react'
+import { useBranding } from '@/components/BrandingProvider'
 
-const defaultServices = [
-  {
-    id: 'complete-growth-packages',
-    title: 'Complete Growth Packages',
-    description: 'All-in-one solutions combining website development with ongoing SEO for maximum business growth.',
-    icon: '🚀',
-    category: 'Direct Services',
-    tiers: [
-      {
-        name: 'Starter Growth Package',
-        price: '$2,200 + $1,200/mo',
-        setupPrice: '$2,200',
-        monthlyPrice: '$1,200',
-        period: 'setup + monthly',
-        popular: false,
-        bestFor: 'local shops, contractors, salons, restaurants',
-        features: [
-          'Up to 5-page SEO-ready site (responsive, mobile-first)',
-          'Basic on-page SEO setup (titles, metadata, headers, alt tags)',
-          'Blog section included for future growth',
-          'Google Analytics + Search Console',
-          '20 local keywords targeted',
-          'Google Business Profile optimization',
-          'Local directory submissions (Yelp, BBB, Maps, etc.)',
-          'Basic backlinks (citations & local links)',
-          'Monthly SEO performance report'
-        ]
-      },
-      {
-        name: 'Business Growth Package',
-        price: '$5,000 + $3,500/mo',
-        setupPrice: '$5,000',
-        monthlyPrice: '$3,500',
-        period: 'setup + monthly',
-        popular: true,
-        bestFor: 'law firms, e-commerce shops, agencies, clinics',
-        features: [
-          '10–15 page custom website',
-          'Keyword-targeted service & location pages',
-          'Blog system with categories/tags',
-          'Lead capture forms (CRM/email integrations)',
-          'Advanced speed + Core Web Vitals optimization',
-          '60 targeted keywords (local + regional/national mix)',
-          'Full technical SEO audit & fixes',
-          'Keyword clustering + content gap strategy',
-          '4 SEO-optimized blog posts/month',
-          'Competitor tracking + rank monitoring',
-          'White-hat backlink campaigns',
-          'Live whitelabel analytics dashboard'
-        ]
-      },
-      {
-        name: 'Enterprise Domination Package',
-        price: '$12,500 + $8,000/mo',
-        setupPrice: '$12,500',
-        monthlyPrice: '$8,000',
-        period: 'setup + monthly',
-        popular: false,
-        bestFor: 'franchises, SaaS companies, large e-commerce',
-        features: [
-          '20–30+ page premium website (franchise, SaaS, or large e-com)',
-          'Conversion funnels (booking, memberships, checkout/e-commerce)',
-          'Multi-location SEO architecture',
-          'Advanced schema markup (services, products, reviews, FAQs)',
-          'Custom integrations (dashboards, APIs, automation)',
-          '150 targeted keywords (local + national)',
-          'Enterprise technical SEO (site architecture, schema layers, Core Web Vitals)',
-          'Advanced backlink outreach (PR features, high DA guest posts)',
-          'Content engine: 8+ SEO blogs/month + AI-powered automation',
-          'Multi-location SEO strategy for franchises',
-          'Conversion optimization (A/B testing, funnel tracking, heatmaps)',
-          'Dedicated account manager + quarterly workshops'
-        ]
-      }
-    ]
-  },
-  {
-    id: 'website-design',
-    title: 'Website Design & Development',
-    description: 'Professional websites that convert visitors into customers with modern design and advanced functionality.',
-    icon: '🖥️',
-    category: 'Direct Services',
-    tiers: [
-      {
-        name: 'Starter Website',
-        price: '$1,000',
-        setupPrice: '$1,000',
-        monthlyPrice: '$0',
-        period: 'one-time',
-        popular: false,
-        bestFor: 'small businesses, startups, personal brands',
-        features: [
-          'Up to 5 SEO-ready pages',
-          'Mobile-friendly design',
-          'Basic SEO setup',
-          'Google Analytics'
-        ]
-      },
-      {
-        name: 'Growth Website',
-        price: '$3,500',
-        setupPrice: '$3,500',
-        monthlyPrice: '$0',
-        period: 'one-time',
-        popular: true,
-        bestFor: 'growing businesses, service companies',
-        features: [
-          '10-15 SEO-optimized pages',
-          'Keyword-targeted copywriting',
-          'Lead capture forms',
-          'Blog system setup'
-        ]
-      },
-      {
-        name: 'Dominate Website',
-        price: '$7,500+',
-        setupPrice: '$7,500+',
-        monthlyPrice: '$0',
-        period: 'one-time',
-        popular: false,
-        bestFor: 'enterprises, e-commerce, franchises',
-        features: [
-          '20-30+ pages',
-          'Conversion funnels',
-          'Multi-location SEO',
-          'Custom integrations'
-        ]
-      }
-    ]
-  },
-  {
-    id: 'seo-services',
-    title: 'SEO Services',
-    description: 'Comprehensive SEO strategies that dominate search results and drive qualified traffic to your business.',
+interface PricingTier {
+  id: number
+  name: string
+  description: string
+  price: number
+  currency: string
+  billing_period: string
+  features: string[]
+  is_popular: boolean
+  is_active: boolean
+  display_order: number
+}
+
+interface Product {
+  id: number
+  name: string
+  description: string
+  icon: any
+  color: string
+  gradient: string
+  textGradient: string
+  badgeColor: string
+  bgGradient: string
+  hoverColor: string
+  tiers: PricingTier[]
+}
+
+interface CheckoutForm {
+  productId: string
+  tierId: string
+  clientName: string
+  clientEmail: string
+  company: string
+  website: string
+  phone: string
+  industry: string
+  agreeToTerms: boolean
+  subscribeToNewsletter: boolean
+}
+
+const productConfigs = {
+  'SEO Services': {
     icon: '🔍',
-    category: 'Direct Services',
-    tiers: [
-      {
-        name: 'Starter SEO',
-        price: '$1,200/mo',
-        setupPrice: '$0',
-        monthlyPrice: '$1,200',
-        period: 'monthly',
-        popular: false,
-        bestFor: 'local businesses, small companies',
-        features: [
-          '20 local keywords',
-          'Google Business optimization',
-          'On-page SEO',
-          'Monthly reports'
-        ]
-      },
-      {
-        name: 'Growth SEO',
-        price: '$3,500/mo',
-        setupPrice: '$0',
-        monthlyPrice: '$3,500',
-        period: 'monthly',
-        popular: true,
-        bestFor: 'regional businesses, growing companies',
-        features: [
-          '60 regional keywords',
-          'Technical SEO audit',
-          '4 blogs/month',
-          'Backlink campaigns'
-        ]
-      },
-      {
-        name: 'Dominate SEO',
-        price: '$8,000+/mo',
-        setupPrice: '$0',
-        monthlyPrice: '$8,000+',
-        period: 'monthly',
-        popular: false,
-        bestFor: 'enterprises, national brands',
-        features: [
-          '150+ keywords',
-          'Enterprise technical SEO',
-          '8+ blogs/month',
-          'Dedicated manager'
-        ]
-      }
-    ]
+    color: 'blue',
+    gradient: 'from-blue-500 to-blue-600',
+    textGradient: 'from-slate-900 via-blue-900 to-indigo-900',
+    badgeColor: 'border-blue-200/50 text-blue-700',
+    bgGradient: 'from-blue-500/10 to-purple-500/10',
+    hoverColor: 'group-hover:text-blue-600'
   },
-  {
-    id: 'white-label-seo',
-    title: 'White Label SEO',
-    description: 'Agency-focused SEO services that you can resell to your clients at 2-3x markup for maximum profit.',
-    icon: '🏷️',
-    category: 'White Label Services',
-    tiers: [
-      {
-        name: 'Starter SEO',
-        price: '$1,200/mo',
-        setupPrice: '$0',
-        monthlyPrice: '$1,200',
-        period: 'monthly',
-        popular: false,
-        bestFor: 'agencies starting SEO services',
-        features: [
-          '20 keywords (local focus)',
-          'Google Business optimization',
-          'On-page SEO + local citations',
-          'Basic backlink building',
-          'Monthly report (agency-branded)',
-          'White-label support'
-        ]
-      },
-      {
-        name: 'Growth SEO',
-        price: '$3,500/mo',
-        setupPrice: '$0',
-        monthlyPrice: '$3,500',
-        period: 'monthly',
-        popular: true,
-        bestFor: 'established agencies with multiple clients',
-        features: [
-          '60 keywords (local + regional/national)',
-          'Full technical SEO audit & fixes',
-          '4 SEO-optimized blogs/month',
-          'Competitor analysis + tracking',
-          'White-hat backlinks',
-          'Live dashboard (whitelabel)'
-        ]
-      },
-      {
-        name: 'Dominate SEO',
-        price: '$8,000/mo',
-        setupPrice: '$0',
-        monthlyPrice: '$8,000',
-        period: 'monthly',
-        popular: false,
-        bestFor: 'large agencies with enterprise clients',
-        features: [
-          '150 keywords (local + national)',
-          'Enterprise technical SEO + architecture',
-          'Advanced backlink & PR outreach',
-          '8+ blogs/month + automation',
-          'Multi-location SEO',
-          'Dedicated account manager (invisible to client)'
-        ]
-      }
-    ]
+  'Website Design': {
+    icon: '💻',
+    color: 'green',
+    gradient: 'from-green-500 to-green-600',
+    textGradient: 'from-slate-900 via-green-900 to-blue-900',
+    badgeColor: 'border-green-200/50 text-green-700',
+    bgGradient: 'from-green-500/10 to-blue-500/10',
+    hoverColor: 'group-hover:text-green-600'
   },
-  {
-    id: 'white-label-web-design',
-    title: 'White Label Website Design',
-    description: 'Professional website design services for agencies to resell at 2-3x markup with full white-label support.',
-    icon: '🖥️',
-    category: 'White Label Services',
-    tiers: [
-      {
-        name: 'Starter Website',
-        price: '$1,000',
-        setupPrice: '$1,000',
-        monthlyPrice: '$0',
-        period: 'one-time',
-        popular: false,
-        bestFor: 'agencies starting web design services',
-        features: [
-          'Up to 5 SEO-optimized pages',
-          'Responsive, mobile-friendly',
-          'Basic SEO setup',
-          'Google Analytics + Search Console',
-          'White-label delivery'
-        ]
-      },
-      {
-        name: 'Growth Website',
-        price: '$3,500',
-        setupPrice: '$3,500',
-        monthlyPrice: '$0',
-        period: 'one-time',
-        popular: true,
-        bestFor: 'agencies with growing client base',
-        features: [
-          '10-15 SEO-optimized pages',
-          'Service + location landing pages',
-          'Keyword-targeted copywriting',
-          'Lead capture forms (CRM/email)',
-          'Blog system setup',
-          'White-label branding'
-        ]
-      },
-      {
-        name: 'Dominate Website',
-        price: '$7,500+',
-        setupPrice: '$7,500+',
-        monthlyPrice: '$0',
-        period: 'one-time',
-        popular: false,
-        bestFor: 'agencies with enterprise clients',
-        features: [
-          '20-30+ custom pages',
-          'Conversion funnels (e-com, bookings, memberships)',
-          'Multi-location SEO',
-          'Advanced schema markup',
-          'Custom integrations (dashboards, APIs)',
-          'Full white-label support'
-        ]
-      }
-    ]
+  'Complete Growth Packages': {
+    icon: '📈',
+    color: 'purple',
+    gradient: 'from-purple-500 to-purple-600',
+    textGradient: 'from-slate-900 via-purple-900 to-pink-900',
+    badgeColor: 'border-purple-200/50 text-purple-700',
+    bgGradient: 'from-purple-500/10 to-pink-500/10',
+    hoverColor: 'group-hover:text-purple-600'
   }
-]
+}
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const searchParams = useSearchParams()
-  const [services, setServices] = useState(defaultServices)
-  const [selectedService, setSelectedService] = useState(defaultServices[0])
-  const [selectedTier, setSelectedTier] = useState(0)
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [products, setProducts] = useState<Product[]>([])
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null)
   const [loading, setLoading] = useState(true)
-  const [formData, setFormData] = useState({
-    businessName: '',
-    contactName: '',
-    email: '',
-    phone: '',
+  const [processing, setProcessing] = useState(false)
+  const [error, setError] = useState('')
+  const [showDropdown, setShowDropdown] = useState(false)
+  const { branding } = useBranding()
+  
+  const [formData, setFormData] = useState<CheckoutForm>({
+    productId: '',
+    tierId: '',
+    clientName: '',
+    clientEmail: '',
+    company: '',
     website: '',
-    message: ''
+    phone: '',
+    industry: '',
+    agreeToTerms: false,
+    subscribeToNewsletter: false
   })
 
-  const categories = ['all', 'Direct Services', 'White Label Services']
-  const filteredServices = selectedCategory === 'all' 
-    ? services 
-    : services.filter(service => service.category === selectedCategory)
-
-  // Fetch services from database
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await fetch('/api/services')
-        if (response.ok) {
-          const data = await response.json()
-          setServices(data)
-          setSelectedService(data[0])
-        }
-      } catch (error) {
-        console.error('Error fetching services:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+    fetchProducts()
     
-    fetchServices()
-  }, [])
-
-  useEffect(() => {
-    const serviceId = searchParams.get('service')
-    const tierIndex = searchParams.get('tier')
-    
-    if (serviceId) {
-      const service = services.find(s => s.id === serviceId)
-      if (service) {
-        setSelectedService(service)
-        setSelectedCategory(service.category)
-        if (tierIndex) {
-          setSelectedTier(parseInt(tierIndex))
-        }
-      }
+    const productId = searchParams.get('product')
+    if (productId) {
+      setFormData(prev => ({ ...prev, productId }))
     }
   }, [searchParams])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission here
-    const submissionData = {
-      service: selectedService.title,
-      tier: currentTier.name,
-      category: selectedService.category,
-      price: currentTier.price,
-      setupPrice: currentTier.setupPrice,
-      monthlyPrice: currentTier.monthlyPrice,
-      bestFor: currentTier.bestFor,
-      features: currentTier.features,
-      ...formData
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/packages')
+      const data = await response.json()
+      
+      if (data.success && data.data && data.data.length > 0) {
+        // Group packages by service
+        const groupedProducts = data.data.reduce((acc: Record<string, Product>, pkg: any) => {
+          // Skip if no package_id (service without tiers)
+          if (!pkg.package_id) return acc
+          
+          const productName = pkg.service_name || 'Service'
+          
+          if (!acc[productName]) {
+            const config = productConfigs[productName as keyof typeof productConfigs] || productConfigs['Complete Growth Packages']
+            acc[productName] = {
+              id: Object.keys(acc).length + 1,
+              name: productName,
+              description: pkg.service_description || `Professional ${productName.toLowerCase()} that deliver measurable results`,
+              icon: pkg.service_icon || config.icon,
+              color: config.color,
+              gradient: config.gradient,
+              textGradient: config.textGradient,
+              badgeColor: config.badgeColor,
+              bgGradient: config.bgGradient,
+              hoverColor: config.hoverColor,
+              tiers: []
+            }
+          }
+          
+          // Add package tier
+          acc[productName].tiers.push({
+            id: pkg.package_id,
+            name: pkg.name,
+            description: pkg.description,
+            price: pkg.price,
+            currency: pkg.currency,
+            billing_period: pkg.billing_period,
+            features: pkg.features || [],
+            is_popular: pkg.is_popular,
+            is_active: pkg.is_active,
+            display_order: pkg.display_order
+          })
+          
+          return acc
+        }, {})
+        
+        // Convert to array and sort tiers within each product
+        const productsArray = Object.values(groupedProducts).map(product => ({
+          ...product,
+          tiers: product.tiers.sort((a, b) => a.display_order - b.display_order)
+        }))
+        
+        setProducts(productsArray)
+        console.log('Loaded products from database:', productsArray)
+      } else {
+        console.log('No products found in database, showing empty state')
+        setProducts([])
+      }
+    } catch (err) {
+      setError('Failed to load products')
+    } finally {
+      setLoading(false)
     }
-    console.log('Form submitted:', submissionData)
-    alert(`Thank you! We'll contact you within 24 hours to discuss your ${selectedService.title} project.`)
   }
 
-  const currentTier = selectedService.tiers[selectedTier]
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product)
+    setSelectedTier(null) // Reset tier selection when product changes
+    setFormData(prev => ({ 
+      ...prev, 
+      productId: product.id.toString(),
+      tierId: ''
+    }))
+    setShowDropdown(false)
+  }
+
+  const handleTierSelect = (tier: PricingTier) => {
+    setSelectedTier(tier)
+    setFormData(prev => ({ ...prev, tierId: tier.id.toString() }))
+  }
+
+  const handleInputChange = (field: keyof CheckoutForm, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const formatPrice = (price: number, currency: string, period: string) => {
+    const formattedPrice = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price)
+    
+    if (period === 'one-time') {
+      return formattedPrice
+    }
+    return `${formattedPrice}/${period}`
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedProduct) {
+      setError('Please select a service')
+      return
+    }
+
+    if (!selectedTier) {
+      setError('Please select a pricing tier')
+      return
+    }
+
+    if (!formData.clientName || !formData.clientEmail || !formData.phone) {
+      setError('Please fill in all required fields')
+      return
+    }
+
+    if (!formData.agreeToTerms) {
+      setError('Please agree to the terms and conditions')
+      return
+    }
+
+    setProcessing(true)
+    setError('')
+
+    try {
+      // Here you would typically send the form data to your payment processor
+      // For now, we'll just simulate a successful submission
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Redirect to success page
+      window.location.href = '/payment/success'
+    } catch (err) {
+      setError('Payment processing failed. Please try again.')
+    } finally {
+      setProcessing(false)
+    }
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading services...</p>
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+          <p className="text-slate-600 text-lg">Loading checkout...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto">
+          <div className="text-6xl mb-4">📦</div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">No Services Available</h2>
+          <p className="text-slate-600 mb-6">
+            No services have been configured yet. Please contact us to set up your custom packages.
+          </p>
+          <a 
+            href="/contact" 
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+          >
+            Contact Us
+          </a>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white pt-24">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center text-gray-600 hover:text-primary-600 transition-colors text-sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Link>
-            <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4 text-green-500" />
-              <span className="text-xs text-gray-600">Secure Checkout</span>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full text-blue-700 text-sm font-medium mb-8 shadow-lg">
+            <Sparkles className="w-5 h-5 mr-2" />
+            Choose Your Service & Pricing
           </div>
+          <h1 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-8">
+            Get Started Today
+          </h1>
+          <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            Select your service and choose the perfect pricing tier for your business needs.
+          </p>
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-12">
           {/* Service Selection */}
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 mb-4">Choose Your Service</h1>
-            
-          {/* Category Filter */}
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-gray-700 mb-1">Service Category:</label>
-            <div className="flex space-x-1">
-              {categories.map((category) => (
+          <div className="space-y-8">
+            <div>
+              <label className="block text-2xl font-bold text-slate-900 mb-6">
+                Select Your Service
+              </label>
+              
+              {/* Service Dropdown */}
+              <div className="relative">
                 <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-2 py-1 rounded text-xs font-semibold transition-all duration-200 ${
-                    selectedCategory === category
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  type="button"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="w-full bg-white/80 backdrop-blur-sm border-2 border-slate-200 rounded-2xl p-6 text-left hover:border-blue-300 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  {category === 'all' ? 'All' : category}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Service Selection */}
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-gray-700 mb-1">Select Service:</label>
-            <div className="space-y-1">
-              {filteredServices.map((service) => (
-                <button
-                  key={service.id}
-                  onClick={() => {
-                    setSelectedService(service)
-                    setSelectedTier(0) // Reset tier when changing service
-                  }}
-                  className={`w-full p-2 rounded border text-left transition-all duration-200 ${
-                    selectedService.id === service.id
-                      ? 'border-primary-500 bg-primary-50'
-                      : 'border-gray-200 bg-white hover:border-primary-300'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <span className="text-lg mr-2">{service.icon}</span>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-gray-900 text-xs">{service.title}</h3>
-                        <span className={`px-1 py-0.5 rounded text-xs font-semibold ${
-                          service.category === 'White Label Services'
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {service.category === 'White Label Services' ? 'White Label' : 'Direct'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">{service.description}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      {selectedProduct ? (
+                        <>
+                          <span className="text-3xl mr-4">{selectedProduct.icon}</span>
+                          <div>
+                            <div className="text-xl font-bold text-slate-900">{selectedProduct.name}</div>
+                            <div className="text-slate-600">{selectedProduct.description}</div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-slate-500 text-lg">Choose a service...</div>
+                      )}
                     </div>
+                    <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
-              ))}
-            </div>
-          </div>
 
-            {/* Tier Selection */}
-            <div className="mb-4">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Select Plan:</label>
-              <div className="space-y-1">
-                {selectedService.tiers.map((tier, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedTier(index)}
-                    className={`w-full p-2 rounded border text-left transition-all duration-200 ${
-                      selectedTier === index
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-gray-200 bg-white hover:border-primary-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 text-xs">{tier.name}</h4>
-                        <p className="text-xs text-gray-500">{tier.period}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-bold text-primary-600">{tier.price}</div>
-                        {tier.popular && (
-                          <div className="text-xs text-primary-600 font-semibold">Popular</div>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Selected Service Details */}
-            <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded p-3 mb-3">
-              <h3 className="font-semibold text-gray-900 mb-2 text-xs">What You Get with {selectedService.title}</h3>
-              <div className="space-y-2">
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-700 mb-0.5">Description:</h4>
-                  <p className="text-xs text-gray-600 line-clamp-2">{selectedService.description}</p>
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-700 mb-0.5">Best For:</h4>
-                  <p className="text-xs text-gray-600">{currentTier.bestFor}</p>
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-700 mb-0.5">Key Features:</h4>
-                  <ul className="space-y-0.5">
-                    {currentTier.features.slice(0, 2).map((feature, index) => (
-                      <li key={index} className="flex items-start text-xs text-gray-600">
-                        <CheckCircle className="w-2.5 h-2.5 text-success-500 mr-1.5 flex-shrink-0 mt-0.5" />
-                        <span className="line-clamp-1">{feature}</span>
-                      </li>
+                {showDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-2xl shadow-2xl z-10 overflow-hidden">
+                    {products.map((product) => (
+                      <button
+                        key={product.id}
+                        type="button"
+                        onClick={() => handleProductSelect(product)}
+                        className="w-full p-6 text-left hover:bg-slate-50 transition-colors duration-200 border-b border-slate-100 last:border-b-0"
+                      >
+                        <div className="flex items-center">
+                          <span className="text-3xl mr-4">{product.icon}</span>
+                          <div>
+                            <div className="text-xl font-bold text-slate-900">{product.name}</div>
+                            <div className="text-slate-600">{product.description}</div>
+                          </div>
+                        </div>
+                      </button>
                     ))}
-                    {currentTier.features.length > 2 && (
-                      <li className="text-xs text-gray-500 ml-4">
-                        +{currentTier.features.length - 2} more features
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Selected Plan Summary */}
-            <div className="bg-gray-50 rounded p-3">
-              <h3 className="font-semibold text-gray-900 mb-2 text-xs">Plan Summary</h3>
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-600">Service:</span>
-                  <span className="font-semibold text-xs">{selectedService.title}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-600">Plan:</span>
-                  <span className="font-semibold text-xs">{currentTier.name}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-600">Setup:</span>
-                  <span className="font-semibold text-xs">{currentTier.setupPrice}</span>
-                </div>
-                {currentTier.monthlyPrice !== '$0' && (
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">Monthly:</span>
-                    <span className="font-semibold text-xs">{currentTier.monthlyPrice}</span>
                   </div>
                 )}
-                <div className="border-t border-gray-200 pt-1">
-                  <div className="flex justify-between text-xs font-bold">
-                    <span>Total:</span>
-                    <span className="text-primary-600">{currentTier.price}</span>
-                  </div>
-                </div>
               </div>
             </div>
+
+            {/* Pricing Tiers */}
+            {selectedProduct && (
+              <div>
+                <label className="block text-2xl font-bold text-slate-900 mb-6">
+                  Choose Your Pricing Tier
+                </label>
+                <div className="space-y-4">
+                  {selectedProduct.tiers.map((tier) => (
+                    <div
+                      key={tier.id}
+                      onClick={() => handleTierSelect(tier)}
+                      className={`group bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                        selectedTier?.id === tier.id
+                          ? 'border-blue-500 bg-blue-50/50'
+                          : 'border-slate-200 hover:border-blue-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center mb-2">
+                            <h3 className="text-xl font-bold text-slate-900 mr-3">{tier.name}</h3>
+                            {tier.is_popular && (
+                              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
+                                <Star className="w-4 h-4 mr-1" />
+                                Most Popular
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-slate-600 mb-3">{tier.description}</p>
+                          <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            {formatPrice(tier.price, tier.currency, tier.billing_period)}
+                          </div>
+                        </div>
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                          selectedTier?.id === tier.id
+                            ? 'border-blue-500 bg-blue-500'
+                            : 'border-slate-300 group-hover:border-blue-400'
+                        }`}>
+                          {selectedTier?.id === tier.id && (
+                            <CheckCircle className="w-4 h-4 text-white" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Contact Form */}
           <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-3">Get Started Today</h2>
-            <p className="text-xs text-gray-600 mb-4">
-              Fill out the form below and we'll contact you within 24 hours.
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="grid md:grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="businessName" className="block text-xs font-medium text-gray-700 mb-1">
-                    Business Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="businessName"
-                    name="businessName"
-                    required
-                    value={formData.businessName}
-                    onChange={handleInputChange}
-                    className="w-full px-2 py-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs"
-                    placeholder="Your Business Name"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="contactName" className="block text-xs font-medium text-gray-700 mb-1">
-                    Contact Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="contactName"
-                    name="contactName"
-                    required
-                    value={formData.contactName}
-                    onChange={handleInputChange}
-                    className="w-full px-2 py-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs"
-                    placeholder="Your Full Name"
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-2 py-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs"
-                    placeholder="your@email.com"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="phone" className="block text-xs font-medium text-gray-700 mb-1">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    required
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full px-2 py-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs"
-                    placeholder="(401) 123-4567"
-                  />
-                </div>
-              </div>
-
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="website" className="block text-xs font-medium text-gray-700 mb-1">
-                  Current Website (if any)
+                <label className="block text-2xl font-bold text-slate-900 mb-6">
+                  Contact Information
                 </label>
-                <input
-                  type="url"
-                  id="website"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleInputChange}
-                  className="w-full px-2 py-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs"
-                  placeholder="https://yourwebsite.com"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="message" className="block text-xs font-medium text-gray-700 mb-1">
-                  Project Details
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={2}
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  className="w-full px-2 py-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs"
-                  placeholder="Tell us about your project goals, timeline, and any specific requirements..."
-                />
-              </div>
-
-              <div className="bg-blue-50 rounded p-2">
-                <div className="flex items-start">
-                  <Clock className="w-3 h-3 text-blue-600 mr-2 mt-0.5" />
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 space-y-6">
                   <div>
-                    <h4 className="font-semibold text-blue-900 mb-1 text-xs">What Happens Next?</h4>
-                    <ul className="text-xs text-blue-800 space-y-0.5">
-                      <li>• We'll contact you within 24 hours</li>
-                      <li>• Schedule a free strategy call</li>
-                      <li>• Discuss your project in detail</li>
-                      <li>• Provide a custom proposal</li>
-                    </ul>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.clientName}
+                      onChange={(e) => handleInputChange('clientName', e.target.value)}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                      placeholder="Enter your full name"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.clientEmail}
+                      onChange={(e) => handleInputChange('clientEmail', e.target.value)}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                      placeholder="Enter your email address"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                      placeholder="Enter your phone number"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.company}
+                      onChange={(e) => handleInputChange('company', e.target.value)}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                      placeholder="Enter your company name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Website URL
+                    </label>
+                    <input
+                      type="url"
+                      value={formData.website}
+                      onChange={(e) => handleInputChange('website', e.target.value)}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                      placeholder="https://yourwebsite.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Industry
+                    </label>
+                    <select
+                      value={formData.industry}
+                      onChange={(e) => handleInputChange('industry', e.target.value)}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                    >
+                      <option value="">Select your industry</option>
+                      <option value="healthcare">Healthcare</option>
+                      <option value="legal">Legal Services</option>
+                      <option value="construction">Construction</option>
+                      <option value="retail">Retail</option>
+                      <option value="restaurant">Restaurant</option>
+                      <option value="professional-services">Professional Services</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="flex items-start">
+                      <input
+                        type="checkbox"
+                        checked={formData.agreeToTerms}
+                        onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
+                        className="mt-1 mr-3 w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                        required
+                      />
+                      <span className="text-sm text-slate-600">
+                        I agree to the <Link href="/terms" className="text-blue-600 hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link> *
+                      </span>
+                    </label>
+
+                    <label className="flex items-start">
+                      <input
+                        type="checkbox"
+                        checked={formData.subscribeToNewsletter}
+                        onChange={(e) => handleInputChange('subscribeToNewsletter', e.target.checked)}
+                        className="mt-1 mr-3 w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-slate-600">
+                        Subscribe to our newsletter for marketing tips and updates
+                      </span>
+                    </label>
                   </div>
                 </div>
               </div>
 
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold py-2 px-3 rounded hover:from-primary-700 hover:to-accent-700 transition-all duration-200 flex items-center justify-center text-xs"
+                disabled={processing || !selectedProduct || !selectedTier}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                <CreditCard className="w-3 h-3 mr-1" />
-                Get Started - No Payment Required
+                {processing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Complete Order
+                    <ArrowRight className="ml-3 h-5 w-5" />
+                  </>
+                )}
               </button>
-
-              <p className="text-xs text-gray-500 text-center">
-                By submitting this form, you agree to our terms of service and privacy policy.
-              </p>
             </form>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+          <p className="text-slate-600 text-lg">Loading checkout...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
   )
 }

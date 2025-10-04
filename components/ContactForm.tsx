@@ -1,269 +1,232 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import toast from 'react-hot-toast'
+import { Send, Phone, Mail, MapPin } from 'lucide-react'
+import { useBranding } from './BrandingProvider'
 
-interface FormData {
-  name: string
-  email: string
-  phone: string
-  company: string
-  service: string
-  message: string
-}
+const contactSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Please enter a valid email address'),
+  phone: z.string().optional(),
+  company: z.string().optional(),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
+  serviceInterest: z.string().optional()
+})
+
+type ContactFormData = z.infer<typeof contactSchema>
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    service: '',
-    message: ''
-  })
+  const { branding } = useBranding()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema)
+  })
 
-  const services = [
-    'SEO Optimization',
-    'Website Development',
-    'Digital Marketing',
-    'Lead Generation',
-    'Local Marketing',
-    'AI-Powered Solutions',
-    'Other'
-  ]
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true)
-
+    
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       })
 
+      const result = await response.json()
+
       if (response.ok) {
-        toast.success('Message sent successfully! We\'ll get back to you soon.')
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          company: '',
-          service: '',
-          message: ''
-        })
+        toast.success(result.message || 'Thank you for your message! We will get back to you soon.')
+        reset()
       } else {
-        toast.error('Failed to send message. Please try again.')
+        toast.error(result.error || 'Something went wrong. Please try again.')
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.')
+      toast.error('Network error. Please check your connection and try again.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12">
+    <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-16">
           {/* Contact Information */}
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl font-semibold text-slate-900 mb-8">
               Get In Touch
             </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              Ready to grow your business? Let's discuss how we can help you achieve 
-              your digital marketing goals.
+            <p className="text-xl text-slate-600 mb-12">
+              Ready to grow your business? Let's discuss how we can help you achieve your goals.
             </p>
 
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Mail className="text-primary-600" size={20} />
+            <div className="space-y-8">
+              <div className="flex items-start">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <Phone className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Email Us</h3>
-                  <p className="text-gray-600">hello@amentiai.com</p>
-                  <p className="text-gray-600">support@amentiai.com</p>
+                  <h3 className="font-semibold text-slate-900 mb-1">Phone</h3>
+                  <p className="text-slate-600">{branding.contact_phone}</p>
+                  <p className="text-sm text-slate-500">Mon-Fri 9AM-6PM EST</p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone className="text-primary-600" size={20} />
+              <div className="flex items-start">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <Mail className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Call Us</h3>
-                  <p className="text-gray-600">(401) 123-4567</p>
-                  <p className="text-gray-600">Mon-Fri 9AM-6PM EST</p>
+                  <h3 className="font-semibold text-slate-900 mb-1">Email</h3>
+                  <p className="text-slate-600">{branding.contact_email}</p>
+                  <p className="text-sm text-slate-500">We'll respond within 24 hours</p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin className="text-primary-600" size={20} />
+              <div className="flex items-start">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <MapPin className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Visit Us</h3>
-                  <p className="text-gray-600">123 Business Ave</p>
-                  <p className="text-gray-600">Providence, RI 02903</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="mt-8 p-6 bg-white rounded-xl border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-4">Why Choose Amenti AI?</h3>
-              <div className="space-y-3">
-                <div className="flex items-center">
-                  <CheckCircle className="text-green-500 mr-3" size={16} />
-                  <span className="text-gray-600">Free consultation and strategy session</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="text-green-500 mr-3" size={16} />
-                  <span className="text-gray-600">Custom solutions for your business</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="text-green-500 mr-3" size={16} />
-                  <span className="text-gray-600">Transparent reporting and analytics</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="text-green-500 mr-3" size={16} />
-                  <span className="text-gray-600">24/7 support and monitoring</span>
+                  <h3 className="font-semibold text-slate-900 mb-1">Location</h3>
+                  <p className="text-slate-600">{branding?.address || 'Providence, Rhode Island'}</p>
+                  <p className="text-sm text-slate-500">Serving all of the USA</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
-              Send Us a Message
+          <div className="bg-slate-50 rounded-2xl p-8">
+            <h3 className="text-2xl font-semibold text-slate-900 mb-6">
+              Send us a message
             </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
                     Full Name *
                   </label>
                   <input
+                    {...register('name')}
                     type="text"
                     id="name"
-                    name="name"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="John Doe"
                   />
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                  )}
                 </div>
+
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
                     Email Address *
                   </label>
                   <input
+                    {...register('email')}
                     type="email"
                     id="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     placeholder="john@company.com"
                   />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  )}
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-2">
                     Phone Number
                   </label>
                   <input
+                    {...register('phone')}
                     type="tel"
                     id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="(401) 123-4567"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder={branding.contact_phone}
                   />
                 </div>
+
                 <div>
-                  <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
-                    Company Name
+                  <label htmlFor="company" className="block text-sm font-medium text-slate-700 mb-2">
+                    Company
                   </label>
                   <input
+                    {...register('company')}
                     type="text"
                     id="company"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Your Company"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Your Company Name"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="serviceInterest" className="block text-sm font-medium text-slate-700 mb-2">
                   Service Interest
                 </label>
                 <select
-                  id="service"
-                  name="service"
-                  value={formData.service}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  {...register('serviceInterest')}
+                  id="serviceInterest"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
                   <option value="">Select a service</option>
-                  {services.map((service) => (
-                    <option key={service} value={service}>
-                      {service}
-                    </option>
-                  ))}
+                  <option value="website-design">Website Design & Development</option>
+                  <option value="seo-services">SEO Services</option>
+                  <option value="complete-packages">Complete Growth Packages</option>
+                  <option value="branding">Branding & Identity</option>
+                  <option value="content-marketing">Content Marketing</option>
+                  <option value="paid-ads">Paid Ads & Social Media</option>
+                  <option value="custom-platforms">Custom Platforms</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-2">
                   Message *
                 </label>
                 <textarea
+                  {...register('message')}
                   id="message"
-                  name="message"
-                  required
                   rows={5}
-                  value={formData.message}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                   placeholder="Tell us about your project and goals..."
                 />
+                {errors.message && (
+                  <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
+                )}
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
               >
                 {isSubmitting ? (
-                  'Sending...'
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Sending...
+                  </>
                 ) : (
                   <>
-                    <Send className="mr-2" size={20} />
+                    <Send className="w-5 h-5 mr-2" />
                     Send Message
                   </>
                 )}
